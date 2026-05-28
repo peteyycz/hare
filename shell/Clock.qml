@@ -1,14 +1,28 @@
 import QtQuick
+import QtQuick.Layouts
 import Quickshell
 
-Text {
+// Centered clock: time (bold) + date (dim).
+RowLayout {
     id: root
+    spacing: 9
 
-    text: Qt.formatDateTime(clock.date, "ddd  HH:mm")
-    color: Theme.fg
-    font.family: Theme.fonts.sans
-    font.pixelSize: 13
-    font.weight: Font.Medium
+    Text {
+        Layout.alignment: Qt.AlignBaseline
+        text: Qt.formatDateTime(clock.date, "HH:mm")
+        font.family: Theme.fonts.sans
+        font.pixelSize: 14
+        font.weight: Font.DemiBold
+        color: Theme.text
+    }
+
+    Text {
+        Layout.alignment: Qt.AlignBaseline
+        text: Qt.formatDateTime(clock.date, "ddd d MMM")
+        font.family: Theme.fonts.sans
+        font.pixelSize: 13
+        color: Theme.textDim
+    }
 
     SystemClock {
         id: clock

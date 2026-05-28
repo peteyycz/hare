@@ -1,37 +1,50 @@
 import QtQuick
-import QtQuick.Layouts
 import Quickshell.Services.SystemTray
 import Quickshell.Widgets
 
 // System tray (StatusNotifierItem). Left click activates, right click triggers
-// the item's secondary action.
-RowLayout {
+// the secondary action.
+Row {
     id: root
-    spacing: 12
+    spacing: 3
 
     Repeater {
         model: SystemTray.items
 
-        delegate: MouseArea {
+        delegate: Rectangle {
             id: item
             required property var modelData
 
-            Layout.alignment: Qt.AlignVCenter
-            implicitWidth: 16
-            implicitHeight: 16
-            acceptedButtons: Qt.LeftButton | Qt.RightButton
-            cursorShape: Qt.PointingHandCursor
+            width: 28
+            height: 28
+            radius: Theme.rSm
+            color: mouse.containsMouse ? Theme.fill : "transparent"
 
-            onClicked: event => {
-                if (event.button === Qt.LeftButton)
-                    modelData.activate();
-                else
-                    modelData.secondaryActivate();
+            Behavior on color {
+                ColorAnimation {
+                    duration: 120
+                }
             }
 
             IconImage {
-                anchors.fill: parent
+                anchors.centerIn: parent
+                implicitSize: 16
                 source: item.modelData.icon
+                opacity: mouse.containsMouse ? 1.0 : 0.82
+            }
+
+            MouseArea {
+                id: mouse
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                onClicked: e => {
+                    if (e.button === Qt.LeftButton)
+                        item.modelData.activate();
+                    else
+                        item.modelData.secondaryActivate();
+                }
             }
         }
     }

@@ -5,8 +5,9 @@ Translucent grayscale panels with compositor blur that read neutrally over any w
 and an **adaptive tone** that flips between dark and light glass based on the wallpaper's
 luminance.
 
-Currently ships a top **bar**: workspaces, system tray, audio / microphone / keyboard-layout
-status, a clock, and a power button.
+Currently ships a top **bar**: workspace pills, active-window label, a centered clock + date,
+now-playing media (with an animated EQ), system tray, network / volume / battery, and
+control-center + power buttons. macOS-Tahoe-style glass with a lavender accent.
 
 > Status: early. The bar works; launcher / session / OSDs are not part of hare yet.
 
@@ -65,8 +66,7 @@ the keyboard layout.
 | `theme.palette.{dark,light}.*` | glass defaults | Per-colour overrides (`bg`, `fg`, `accent`, …). |
 | `theme.fonts.{sans,mono}` | system defaults | Font families. |
 | `bar.height` | `36` | Bar height in px. |
-| `bar.entries` | `[workspaces spacer tray statusIcons clock power]` | Ordered entries; `spacer` splits left/right. |
-| `bar.status.{showAudio,showMicrophone,showKbLayout}` | `true` | Status toggles. |
+| `bar.style` | `"floating"` | `floating` (inset, rounded) or `full` (edge-to-edge). |
 
 The default palette is also exported as plain data at `hare.lib.glass = { dark = {…}; light = {…}; }`
 so you can reuse the exact colours for other surfaces (rofi, lock screen, polkit, …).

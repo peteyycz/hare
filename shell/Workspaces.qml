@@ -1,11 +1,11 @@
 import QtQuick
 import Quickshell.Hyprland
 
-// Workspace pills: the focused one stretches into a wide pill, the rest are
-// dots. Click to switch.
+// Numbered workspace pills. Occupied workspaces get a faint fill; the focused
+// one becomes a wide accent pill.
 Row {
     id: root
-    spacing: 8
+    spacing: 5
 
     Repeater {
         model: Hyprland.workspaces
@@ -15,24 +15,32 @@ Row {
             required property var modelData
 
             readonly property bool active: Hyprland.focusedWorkspace?.id === modelData.id
+            readonly property bool occupied: (modelData.lastIpcObject?.windows ?? 0) > 0
 
-            anchors.verticalCenter: parent.verticalCenter
-            implicitWidth: active ? 26 : 10
-            implicitHeight: 10
-            radius: height / 2
-            color: active ? Theme.accent : Theme.subtle
-            opacity: active ? 1.0 : 0.45
+            implicitWidth: active ? 34 : 22
+            implicitHeight: 22
+            radius: Theme.rSm
+            color: active ? Theme.accent : (occupied ? Theme.fill : "transparent")
 
             Behavior on implicitWidth {
                 NumberAnimation {
-                    duration: 160
+                    duration: 180
                     easing.type: Easing.OutCubic
                 }
             }
-            Behavior on opacity {
-                NumberAnimation {
-                    duration: 160
+            Behavior on color {
+                ColorAnimation {
+                    duration: 180
                 }
+            }
+
+            Text {
+                anchors.centerIn: parent
+                text: pill.modelData.id
+                font.family: Theme.fonts.sans
+                font.pixelSize: 12
+                font.weight: Font.DemiBold
+                color: pill.active ? Theme.accentInk : (pill.occupied ? Theme.textDim : Theme.textFaint)
             }
 
             MouseArea {

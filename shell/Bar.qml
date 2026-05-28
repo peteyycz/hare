@@ -3,16 +3,17 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 
-// A floating, frosted top bar. Quickshell renders the translucent fill; the
-// compositor (e.g. a Hyprland `layerrule blur, namespace:hare`) supplies the
-// blur that makes it read as glass.
+// Liquid-glass top bar. Quickshell renders the translucent fill + specular
+// highlight; the compositor (Hyprland `layerrule blur, namespace:hare`) adds
+// the blur behind it.
 PanelWindow {
     id: bar
 
     required property var modelData
     screen: modelData
 
-    readonly property var entries: Theme.bar.entries ?? ["workspaces", "spacer", "tray", "statusIcons", "clock", "power"]
+    readonly property bool full: Theme.barStyle === "full"
+    readonly property int inset: full ? 0 : 8
 
     WlrLayershell.namespace: "hare"
     color: "transparent"
@@ -22,70 +23,107 @@ PanelWindow {
         left: true
         right: true
     }
-    implicitHeight: Theme.bar.height ?? 36
+    implicitHeight: Theme.barHeight + inset
     exclusiveZone: implicitHeight
 
-    function componentFor(name) {
-        switch (name) {
-        case "workspaces":
-            return cWorkspaces;
-        case "tray":
-            return cTray;
-        case "statusIcons":
-            return cStatus;
-        case "clock":
-            return cClock;
-        case "power":
-            return cPower;
-        default:
-            return null;
-        }
-    }
-
-    Component {
-        id: cWorkspaces
-        Workspaces {}
-    }
-    Component {
-        id: cTray
-        SysTray {}
-    }
-    Component {
-        id: cStatus
-        StatusIcons {}
-    }
-    Component {
-        id: cClock
-        Clock {}
-    }
-    Component {
-        id: cPower
-        Power {}
-    }
-
     Rectangle {
+        id: glass
+
         anchors.fill: parent
-        anchors.margins: 6
-        radius: 14
+        anchors.topMargin: bar.inset
+        anchors.leftMargin: bar.inset
+        anchors.rightMargin: bar.inset
+
+        radius: bar.full ? 0 : Theme.rMd + 2
         color: Theme.bg
         border.width: 1
         border.color: Theme.border
+        clip: true
 
-        RowLayout {
-            anchors.fill: parent
-            anchors.leftMargin: 16
-            anchors.rightMargin: 16
-            spacing: 14
-
-            Repeater {
-                model: bar.entries
-
-                delegate: Loader {
-                    required property var modelData
-                    Layout.alignment: Qt.AlignVCenter
-                    Layout.fillWidth: modelData === "spacer"
-                    sourceComponent: bar.componentFor(modelData)
+        // soft top specular glow (the liquid-glass sheen)
+        Rectangle {
+            anchors {
+                top: parent.top
+                left: parent.left
+                right: parent.right
+            }
+            height: parent.height * 0.6
+            gradient: Gradient {
+                GradientStop {
+                    position: 0.0
+                    color: Qt.rgba(1, 1, 1, 0.12)
                 }
+                GradientStop {
+                    position: 1.0
+                    color: "transparent"
+                }
+            }
+        }
+
+        // bright 1px top edge highlight
+        Rectangle {
+            anchors {
+                top: parent.top
+                left: parent.left
+                right: parent.right
+            }
+            anchors.topMargin: 1
+            anchors.leftMargin: glass.radius
+            anchors.rightMargin: glass.radius
+            height: 1
+            color: Theme.hi
+            opacity: 0.5
+        }
+
+        // ---- left segment ----
+        RowLayout {
+            anchors.left: parent.left
+            anchors.leftMargin: 12
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 7
+
+            Workspaces {
+                Layout.alignment: Qt.AlignVCenter
+            }
+            VLine {}
+            ActiveWindow {
+                Layout.alignment: Qt.AlignVCenter
+            }
+        }
+
+        // ---- center clock ----
+        Clock {
+            anchors.centerIn: parent
+        }
+
+        // ---- right segment ----
+        RowLayout {
+            anchors.right: parent.right
+            anchors.rightMargin: 12
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 7
+
+            Media {
+                Layout.alignment: Qt.AlignVCenter
+            }
+            VLine {}
+            SysTray {
+                Layout.alignment: Qt.AlignVCenter
+            }
+            Network {
+                Layout.alignment: Qt.AlignVCenter
+            }
+            Volume {
+                Layout.alignment: Qt.AlignVCenter
+            }
+            Battery {
+                Layout.alignment: Qt.AlignVCenter
+            }
+            ControlCenter {
+                Layout.alignment: Qt.AlignVCenter
+            }
+            Power {
+                Layout.alignment: Qt.AlignVCenter
             }
         }
     }

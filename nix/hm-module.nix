@@ -31,7 +31,7 @@ let
         palette = cfg.theme.palette;
       };
       bar = {
-        inherit (cfg.bar) height entries status;
+        inherit (cfg.bar) height style;
       };
       wallpaper = cfg.wallpaper;
     }
@@ -98,40 +98,13 @@ in
         type = lib.types.int;
         default = 36;
       };
-      entries = lib.mkOption {
-        type = lib.types.listOf (
-          lib.types.enum [
-            "workspaces"
-            "spacer"
-            "tray"
-            "statusIcons"
-            "clock"
-            "power"
-          ]
-        );
-        default = [
-          "workspaces"
-          "spacer"
-          "tray"
-          "statusIcons"
-          "clock"
-          "power"
+      style = lib.mkOption {
+        type = lib.types.enum [
+          "floating"
+          "full"
         ];
-        description = "Ordered bar entries. 'spacer' is a stretch that splits left/right.";
-      };
-      status = {
-        showAudio = lib.mkOption {
-          type = lib.types.bool;
-          default = true;
-        };
-        showMicrophone = lib.mkOption {
-          type = lib.types.bool;
-          default = true;
-        };
-        showKbLayout = lib.mkOption {
-          type = lib.types.bool;
-          default = true;
-        };
+        default = "floating";
+        description = "Bar style: floating (inset, rounded) or full (edge-to-edge).";
       };
     };
   };

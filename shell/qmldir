@@ -1,7 +1,15 @@
 singleton Theme 1.0 Theme.qml
 Bar 1.0 Bar.qml
+BarButton 1.0 BarButton.qml
+Icon 1.0 Icon.qml
+VLine 1.0 VLine.qml
 Workspaces 1.0 Workspaces.qml
+ActiveWindow 1.0 ActiveWindow.qml
 Clock 1.0 Clock.qml
+Media 1.0 Media.qml
 SysTray 1.0 SysTray.qml
-StatusIcons 1.0 StatusIcons.qml
+Network 1.0 Network.qml
+Volume 1.0 Volume.qml
+Battery 1.0 Battery.qml
+ControlCenter 1.0 ControlCenter.qml
 Power 1.0 Power.qml
