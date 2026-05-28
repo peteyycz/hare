@@ -1,1 +1,7 @@
 singleton Theme 1.0 Theme.qml
+Bar 1.0 Bar.qml
+Workspaces 1.0 Workspaces.qml
+Clock 1.0 Clock.qml
+SysTray 1.0 SysTray.qml
+StatusIcons 1.0 StatusIcons.qml
+Power 1.0 Power.qml
