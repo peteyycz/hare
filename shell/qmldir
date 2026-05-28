@@ -12,4 +12,9 @@ Network 1.0 Network.qml
 Volume 1.0 Volume.qml
 Battery 1.0 Battery.qml
 ControlCenter 1.0 ControlCenter.qml
+ControlCenterPanel 1.0 ControlCenterPanel.qml
+CcToggle 1.0 CcToggle.qml
+SliderRow 1.0 SliderRow.qml
+Slider 1.0 Slider.qml
+MediaButton 1.0 MediaButton.qml
 Power 1.0 Power.qml

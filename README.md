@@ -9,7 +9,25 @@ Currently ships a top **bar**: workspace pills, active-window label, a centered 
 now-playing media (with an animated EQ), system tray, network / volume / battery, and
 control-center + power buttons. macOS-Tahoe-style glass with a lavender accent.
 
-> Status: early. The bar works; launcher / session / OSDs are not part of hare yet.
+The control-center button opens a **Control Center** popup (its own blurred layer surface):
+six quick toggles, brightness + volume sliders, and an MPRIS now-playing card. The toggles
+drive real backends where one exists:
+
+| Toggle | Backend |
+| --- | --- |
+| Wi-Fi | NetworkManager (`nmcli radio wifi`), shows the active SSID |
+| Bluetooth | native `Quickshell.Bluetooth` adapter, shows the connected device |
+| Focus | cosmetic for now (no notification daemon wired) |
+| Night Light | `hyprsunset -t 3500` (held alive while on) |
+| Caffeine | `systemd-inhibit` idle/sleep lock (held while on) |
+| Record | `wf-recorder` → `~/Videos/hare-<timestamp>.mp4` (SIGINT to stop) |
+
+The volume slider is wired to PipeWire, brightness to `brightnessctl`. Toggles whose tool is
+missing degrade to a no-op rather than erroring. Optional runtime tools: `networkmanager`,
+`hyprsunset`, `wf-recorder`, `brightnessctl`, plus `systemd` for Caffeine.
+
+> Status: early. The bar and control center work; launcher / session / OSDs are not part of
+> hare yet.
 
 ## Install (Nix flake + home-manager)
 

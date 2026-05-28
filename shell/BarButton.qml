@@ -8,13 +8,15 @@ Rectangle {
     default property alias content: row.data
     property alias spacing: row.spacing
     property int hpad: 9
+    // sticky highlight, e.g. while the button's popup is open
+    property bool active: false
     signal clicked
     signal rightClicked
 
     implicitWidth: row.implicitWidth + hpad * 2
     implicitHeight: Theme.barHeight - 12
     radius: Theme.rSm
-    color: mouse.containsMouse ? Theme.fill : "transparent"
+    color: (mouse.containsMouse || active) ? Theme.fill : "transparent"
 
     Behavior on color {
         ColorAnimation {

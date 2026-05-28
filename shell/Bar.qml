@@ -120,11 +120,18 @@ PanelWindow {
                 Layout.alignment: Qt.AlignVCenter
             }
             ControlCenter {
+                id: controlCenter
                 Layout.alignment: Qt.AlignVCenter
             }
             Power {
                 Layout.alignment: Qt.AlignVCenter
             }
         }
+    }
+
+    // Control-center popup — its own layer-shell surface anchored under the bar.
+    ControlCenterPanel {
+        screen: bar.screen
+        open: controlCenter.open
     }
 }

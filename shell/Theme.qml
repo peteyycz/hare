@@ -87,10 +87,15 @@ Singleton {
     readonly property color accentInk: "#" + p.accentInk
     readonly property color error: "#" + p.error
 
+    // opaque base of the glass material (for elements that sit *on* a panel,
+    // e.g. the media play-button icon punched out of the surface).
+    readonly property color bgSolid: rgba(p.bg, 1)
+
     // ---- geometry (medium corners) ----
     readonly property int rLg: 16
     readonly property int rMd: 12
     readonly property int rSm: 8
+    readonly property int rPill: 999
     readonly property int barHeight: barCfg.height ?? 36
     readonly property string barStyle: barCfg.style ?? "floating"
     readonly property int gap: 11
