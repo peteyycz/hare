@@ -7,14 +7,26 @@ BarButton {
 
     property bool open: false
     active: open
-    onClicked: root.open = !root.open
+
+    readonly property int count: Notifs.list?.values?.length ?? 0
+    // auto-close once the last notification is gone (Clear All or per-card (x))
+    onCountChanged: if (count === 0)
+        root.open = false
+
+    // don't open an empty center — only toggle when there's something to show
+    // (still allow closing if it's already open)
+    onClicked: {
+        if (!root.open && count === 0)
+            return;
+        root.open = !root.open;
+    }
 
     Icon {
         anchors.verticalCenter: parent.verticalCenter
         code: 0xf0f3 // nf-fa-bell
 
         Rectangle {
-            readonly property int count: Notifs.list?.values?.length ?? 0
+            readonly property int count: root.count
 
             visible: count > 0 && !root.open
             anchors.horizontalCenter: parent.right

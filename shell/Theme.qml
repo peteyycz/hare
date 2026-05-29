@@ -101,6 +101,17 @@ Singleton {
     readonly property int gap: 11
     readonly property int pad: 14
 
+    // ---- motion ----
+    // Material 3 "emphasized" easing — accelerates out fast, then settles with a
+    // long graceful tail. This is the signature buttery glide (the same feel
+    // caelestia uses for fills/sliders/transitions). Use as:
+    //   easing.type: Easing.BezierSpline
+    //   easing.bezierCurve: Theme.emphasized
+    readonly property var emphasized: [0.05, 0, 0.133333, 0.06, 0.166667, 0.4, 0.208333, 0.82, 0.25, 1, 1, 1]
+    readonly property int durFast: 200
+    readonly property int durNormal: 350
+    readonly property int durSlow: 500
+
     // Placement for top-right popups (control center, notifications, …). The bar
     // reserves an exclusive zone, so popups only need the gap below it + the
     // inset from the screen edge. Reuse these for any future popup.

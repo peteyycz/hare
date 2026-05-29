@@ -35,6 +35,15 @@
             imagemagick
             qt6.qtdeclarative
           ];
+
+          # qmlls (launched by the editor with -E) reads QML_IMPORT_PATH to
+          # resolve imports. On Nix the modules live under lib/qt-6/qml, which
+          # qmlls does NOT auto-discover, so we list both: qtdeclarative for
+          # QtQuick/QtQml and quickshell for Quickshell.* .
+          QML_IMPORT_PATH = pkgs.lib.makeSearchPath "lib/qt-6/qml" [
+            pkgs.qt6.qtdeclarative
+            pkgs.quickshell
+          ];
         };
 
         formatter = pkgs.nixfmt-rfc-style;

@@ -39,8 +39,8 @@ other.
 > **Only one process may own `org.freedesktop.Notifications`.** If you run **mako**, **dunst**,
 > or another daemon, stop it (`systemctl --user stop mako`) or hare's server won't register.
 
-> Status: early. The bar, control center, and notifications work; launcher / session / OSDs
-> are not part of hare yet.
+> Status: early. The bar, control center, notifications, and the volume OSD work;
+> launcher / session and other OSDs are not part of hare yet.
 
 ## Install (Nix flake + home-manager)
 

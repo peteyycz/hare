@@ -45,6 +45,18 @@ PanelWindow {
         return ps.find(p => p.isPlaying) ?? ps[0] ?? null;
     }
     property real brightness: 0.72   // cosmetic default; applied via brightnessctl
+    // brightnessctl only controls an internal backlight (laptops); desktops /
+    // external-only setups have none, so the Display slider is hidden there.
+    property bool hasBacklight: false
+
+    Process {
+        id: backlightQuery
+        running: true
+        command: ["sh", "-c", "ls -1 /sys/class/backlight 2>/dev/null | head -n1"]
+        stdout: StdioCollector {
+            onStreamFinished: panel.hasBacklight = text.trim().length > 0
+        }
+    }
 
     PwObjectTracker {
         objects: [panel.sink]
@@ -81,40 +93,6 @@ PanelWindow {
     //  Toggle backends
     // ============================================================
 
-    // ---- Wi-Fi (NetworkManager via nmcli) ----
-    property bool wifiEnabled: false
-    property string wifiSsid: ""
-
-    function toggleWifi() {
-        wifiEnabled = !wifiEnabled;            // optimistic; confirmed by the next poll
-        wifiToggle.command = ["nmcli", "radio", "wifi", wifiEnabled ? "on" : "off"];
-        wifiToggle.running = true;
-    }
-
-    Process {
-        id: wifiToggle
-        onExited: wifiQuery.running = true     // re-read true state after toggling
-    }
-    Process {
-        id: wifiQuery
-        command: ["sh", "-c", "r=$(nmcli -t radio wifi 2>/dev/null); s=$(nmcli -t -f ACTIVE,SSID dev wifi 2>/dev/null | awk -F: '$1==\"yes\"{print $2; exit}'); printf '%s|%s' \"$r\" \"$s\""]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const parts = text.split("|");
-                panel.wifiEnabled = parts[0] === "enabled";
-                panel.wifiSsid = (parts[1] ?? "").trim();
-            }
-        }
-    }
-    Timer {
-        // poll Wi-Fi state only while the panel is open
-        interval: 5000
-        repeat: true
-        running: panel.visible
-        triggeredOnStart: true
-        onTriggered: wifiQuery.running = true
-    }
-
     // ---- Bluetooth (native Quickshell.Bluetooth) ----
     readonly property BluetoothAdapter btAdapter: Bluetooth.defaultAdapter
 
@@ -125,8 +103,9 @@ PanelWindow {
         return connected.length ? (connected[0].name || "Connected") : "On";
     }
 
-    // ---- Focus (cosmetic — no notification daemon to drive) ----
-    property bool focusOn: false
+    // ---- Focus / Do-Not-Disturb (drives the notification server's `dnd`) ----
+    // State lives in the Notifs singleton so it's shared across screens and the
+    // server can read it; the toggle below is just a view onto it.
 
     // ---- Night Light (hyprsunset daemon, alive while the toggle is on) ----
     Process {
@@ -246,11 +225,11 @@ PanelWindow {
                 columnSpacing: Theme.gap
 
                 CcToggle {
-                    icon: 0xf1eb // wifi
-                    name: "Wi-Fi"
-                    on: panel.wifiEnabled
-                    status: panel.wifiEnabled ? (panel.wifiSsid || "On") : "Off"
-                    onToggled: panel.toggleWifi()
+                    icon: 0xf05b // crosshairs
+                    name: "Game Mode"
+                    on: GameMode.enabled
+                    status: GameMode.enabled ? "On" : "Off"
+                    onToggled: GameMode.enabled = !GameMode.enabled
                 }
                 CcToggle {
                     icon: 0xf293 // bluetooth
@@ -263,9 +242,9 @@ PanelWindow {
                 CcToggle {
                     icon: 0xf186 // moon (do-not-disturb)
                     name: "Focus"
-                    on: panel.focusOn
-                    status: panel.focusOn ? "On" : "Off"
-                    onToggled: panel.focusOn = !panel.focusOn
+                    on: Notifs.dnd
+                    status: Notifs.dnd ? "On" : "Off"
+                    onToggled: Notifs.dnd = !Notifs.dnd
                 }
                 CcToggle {
                     icon: 0xf0eb // night light (lightbulb)
@@ -290,9 +269,10 @@ PanelWindow {
                 }
             }
 
-            // ---- brightness ----
+            // ---- brightness (only when an internal backlight exists) ----
             SliderRow {
                 Layout.fillWidth: true
+                visible: panel.hasBacklight
                 heading: "Display"
                 glyph: 0xf185 // sun
                 value: panel.brightness

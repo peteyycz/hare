@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
-import Quickshell.Services.Notifications
 
 // Transient toast stack at the top-right of the primary screen. A layer-shell
 // surface that hugs its content (so empty space below the cards stays
@@ -82,19 +81,8 @@ PanelWindow {
                     notification: wrap.modelData
                     mode: "toast"
                 }
-
-                Timer {
-                    interval: {
-                        const n = wrap.modelData;
-                        if (n?.urgency === NotificationUrgency.Critical)
-                            return 0; // sticky
-                        const e = n?.expireTimeout ?? 0;
-                        return e > 0 ? e : 5000;
-                    }
-                    running: interval > 0
-                    repeat: false
-                    onTriggered: Notifs.dropToast(wrap.modelData)
-                }
+                // auto-dismiss is scheduled per-toast in the Notifs singleton, so
+                // each toast disappears on its own clock (see Notifs.pushToast)
             }
         }
     }

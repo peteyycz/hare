@@ -18,6 +18,10 @@ BarButton {
 
     Icon {
         anchors.verticalCenter: parent.verticalCenter
+        // fixed box + centered glyph so the button doesn't reflow when the
+        // volume/mute glyphs (different widths) swap
+        width: 18
+        horizontalAlignment: Text.AlignHCenter
         code: root.muted ? 0xf026 : (root.volume < 0.5 ? 0xf027 : 0xf028)
         opacity: root.muted ? 0.5 : 1.0
     }

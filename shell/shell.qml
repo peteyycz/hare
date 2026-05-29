@@ -16,4 +16,9 @@ ShellRoot {
     NotifToasts {
         screen: Quickshell.screens[0] ?? null
     }
+
+    // Volume OSD — flashes on the primary screen when the volume changes.
+    VolumeOsd {
+        screen: Quickshell.screens[0] ?? null
+    }
 }

@@ -58,46 +58,153 @@ PanelWindow {
         spacing: 6
 
         // ---- header ----
-        Item {
+        // Two floating glass pills (matching the NotifCards below) so they read
+        // clearly over the wallpaper: the title on the left, "Clear All" on the
+        // right, with space-between.
+        RowLayout {
             Layout.fillWidth: true
-            Layout.leftMargin: 6
-            Layout.rightMargin: 6
-            implicitHeight: 20
+            spacing: 8
 
-            // soft shadow for legibility over the wallpaper
-            Text {
-                anchors.verticalCenter: parent.verticalCenter
-                x: 1
-                y: 1
-                text: "Notifications"
-                font.family: Theme.fonts.sans
-                font.pixelSize: 15
-                font.weight: Font.DemiBold
-                color: Qt.rgba(0, 0, 0, 0.35)
-                visible: Theme.activeTone === "dark"
-            }
-            Text {
-                anchors.verticalCenter: parent.verticalCenter
-                text: "Notifications"
-                font.family: Theme.fonts.sans
-                font.pixelSize: 15
-                font.weight: Font.DemiBold
-                color: Theme.text
+            // title pill — same glass material as the NotifCards (bg + border +
+            // specular sheen + edge highlight).
+            Rectangle {
+                id: titlePill
+                implicitHeight: 28
+                implicitWidth: titleText.implicitWidth + 24
+
+                radius: Theme.rPill
+                color: Theme.bg
+                border.width: 1
+                border.color: Theme.border
+                antialiasing: true
+
+                // top specular sheen — a full-size overlay sharing the pill's
+                // radius, so it follows the rounded corners without a clip; the
+                // gradient fades out by the middle
+                Rectangle {
+                    anchors.fill: parent
+                    radius: parent.radius
+                    gradient: Gradient {
+                        GradientStop {
+                            position: 0.0
+                            color: Qt.rgba(1, 1, 1, 0.10)
+                        }
+                        GradientStop {
+                            position: 0.5
+                            color: "transparent"
+                        }
+                        GradientStop {
+                            position: 1.0
+                            color: "transparent"
+                        }
+                    }
+                }
+                // 1px top edge highlight
+                Rectangle {
+                    anchors {
+                        top: parent.top
+                        left: parent.left
+                        right: parent.right
+                    }
+                    anchors.topMargin: 1
+                    anchors.leftMargin: parent.height / 2
+                    anchors.rightMargin: parent.height / 2
+                    height: 1
+                    color: Theme.hi
+                    opacity: 0.5
+                }
+
+                Text {
+                    id: titleText
+                    anchors.centerIn: parent
+                    text: "Notifications"
+                    font.family: Theme.fonts.sans
+                    font.pixelSize: 15
+                    font.weight: Font.DemiBold
+                    color: Theme.text
+                }
             }
 
-            Text {
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.right: parent.right
+            // spacer → pushes the two pills to opposite edges (space-between)
+            Item {
+                Layout.fillWidth: true
+            }
+
+            // clear-all pill — same glass material as the title pill, with the
+            // animated fill→fillStrong hover used by the preferences buttons.
+            Rectangle {
+                id: clearPill
                 visible: panel.items.length > 0
-                text: "Clear All"
-                font.family: Theme.fonts.sans
-                font.pixelSize: 12
-                color: clearMouse.containsMouse ? Theme.text : Theme.textDim
+                implicitHeight: 28
+                implicitWidth: clearText.implicitWidth + 24
+
+                radius: Theme.rPill
+                color: Theme.bg
+                border.width: 1
+                border.color: Theme.border
+                antialiasing: true
+
+                // hover wash — a fillStrong highlight fades in on hover, the same
+                // brightening the CcToggle buttons use in the Control Center
+                Rectangle {
+                    anchors.fill: parent
+                    radius: parent.radius
+                    color: clearMouse.containsMouse ? Theme.fillStrong : "transparent"
+                    Behavior on color {
+                        ColorAnimation {
+                            duration: 140
+                        }
+                    }
+                }
+
+                // top specular sheen — a full-size overlay sharing the pill's
+                // radius, so it follows the rounded corners without a clip; the
+                // gradient fades out by the middle
+                Rectangle {
+                    anchors.fill: parent
+                    radius: parent.radius
+                    gradient: Gradient {
+                        GradientStop {
+                            position: 0.0
+                            color: Qt.rgba(1, 1, 1, 0.10)
+                        }
+                        GradientStop {
+                            position: 0.5
+                            color: "transparent"
+                        }
+                        GradientStop {
+                            position: 1.0
+                            color: "transparent"
+                        }
+                    }
+                }
+                // 1px top edge highlight
+                Rectangle {
+                    anchors {
+                        top: parent.top
+                        left: parent.left
+                        right: parent.right
+                    }
+                    anchors.topMargin: 1
+                    anchors.leftMargin: parent.height / 2
+                    anchors.rightMargin: parent.height / 2
+                    height: 1
+                    color: Theme.hi
+                    opacity: 0.5
+                }
+
+                Text {
+                    id: clearText
+                    anchors.centerIn: parent
+                    text: "Clear All"
+                    font.family: Theme.fonts.sans
+                    font.pixelSize: 12
+                    color: clearMouse.containsMouse ? Theme.text : Theme.textDim
+                }
 
                 MouseArea {
                     id: clearMouse
                     anchors.fill: parent
-                    anchors.margins: -6
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: Notifs.clearAll()

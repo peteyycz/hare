@@ -12,7 +12,9 @@ PanelWindow {
     required property var modelData
     screen: modelData
 
-    readonly property bool full: Theme.barStyle === "full"
+    // game mode forces the full-width, square, flush-to-top bar (no floating
+    // inset/rounding) to match the stripped-down compositor look
+    readonly property bool full: Theme.barStyle === "full" || GameMode.enabled
     readonly property int inset: full ? 0 : 8
 
     WlrLayershell.namespace: "hare"
@@ -110,10 +112,7 @@ PanelWindow {
             SysTray {
                 Layout.alignment: Qt.AlignVCenter
             }
-            Network {
-                Layout.alignment: Qt.AlignVCenter
-            }
-            Volume {
+            Microphone {
                 Layout.alignment: Qt.AlignVCenter
             }
             Battery {
