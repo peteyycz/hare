@@ -137,6 +137,40 @@ PanelWindow {
         }
     }
 
+    // Click-catcher: a transparent surface that sits below the popups but above
+    // everything else, closing whichever top-right popup is open when you click
+    // outside it. Declared before the popups so they stack above it (and keep
+    // their own clicks). Anchored to all edges, but the bar's exclusive zone
+    // offsets its top below the bar, so the toggle buttons stay clickable. Uses a
+    // non-"hare" namespace so the Hyprland blur rule doesn't frost the screen.
+    PanelWindow {
+        id: clickCatcher
+        screen: bar.screen
+        visible: controlCenter.open || notifButton.open
+        color: "transparent"
+
+        WlrLayershell.namespace: "hare-overlay"
+        WlrLayershell.layer: WlrLayer.Top
+
+        anchors {
+            top: true
+            bottom: true
+            left: true
+            right: true
+        }
+        exclusiveZone: 0
+
+        MouseArea {
+            anchors.fill: parent
+            // accept right/middle too, so any outside click dismisses
+            acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
+            onPressed: {
+                controlCenter.open = false;
+                notifButton.open = false;
+            }
+        }
+    }
+
     // Top-right popups — each its own layer-shell surface anchored under the bar.
     ControlCenterPanel {
         screen: bar.screen
