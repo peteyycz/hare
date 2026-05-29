@@ -11,6 +11,11 @@ PanelWindow {
     id: panel
 
     property bool open: false
+    // pulsed once each time the center opens; cards animate their entrance off
+    // this, NOT off `visible`, so a dismiss-driven list rebuild doesn't replay
+    // the whole stagger.
+    signal animateIn
+
     readonly property var items: Notifs.list?.values ?? []
     // cap the scroll viewport so the window stays on-screen; the list scrolls
     readonly property int maxListHeight: (screen?.height ?? 1080) - Theme.barHeight - 80
@@ -34,7 +39,12 @@ PanelWindow {
     implicitWidth: 372
     implicitHeight: col.implicitHeight
 
-    onVisibleChanged: Notifs.panelOpen = visible
+    onVisibleChanged: {
+        Notifs.panelOpen = visible;
+        // fire after the delegates exist for this show, but before the next frame
+        if (visible)
+            Qt.callLater(() => panel.animateIn());
+    }
 
     ColumnLayout {
         id: col
@@ -138,44 +148,40 @@ PanelWindow {
                         notification: modelData
                         mode: "center"
 
-                        opacity: 0
+                        // Cards default to fully shown, so a rebuild (e.g. after a
+                        // dismiss) just reappears them in place. The staggered
+                        // fade+slide only runs when the panel pulses `animateIn`.
                         transform: Translate {
                             id: slide
-                            y: 8
+                            y: 0
                         }
-                        states: State {
-                            name: "in"
-                            when: panel.visible
-                            PropertyChanges {
-                                target: card
-                                opacity: 1
-                            }
-                            PropertyChanges {
-                                target: slide
-                                y: 0
+                        Connections {
+                            target: panel
+                            function onAnimateIn() {
+                                card.opacity = 0;
+                                slide.y = 8;
+                                enterAnim.restart();
                             }
                         }
-                        transitions: Transition {
-                            to: "in"
-                            SequentialAnimation {
-                                PauseAnimation {
-                                    duration: card.index * 45
+                        SequentialAnimation {
+                            id: enterAnim
+                            PauseAnimation {
+                                duration: card.index * 45
+                            }
+                            ParallelAnimation {
+                                NumberAnimation {
+                                    target: card
+                                    property: "opacity"
+                                    to: 1
+                                    duration: 200
+                                    easing.type: Easing.OutCubic
                                 }
-                                ParallelAnimation {
-                                    NumberAnimation {
-                                        target: card
-                                        property: "opacity"
-                                        to: 1
-                                        duration: 200
-                                        easing.type: Easing.OutCubic
-                                    }
-                                    NumberAnimation {
-                                        target: slide
-                                        property: "y"
-                                        to: 0
-                                        duration: 220
-                                        easing.type: Easing.OutCubic
-                                    }
+                                NumberAnimation {
+                                    target: slide
+                                    property: "y"
+                                    to: 0
+                                    duration: 220
+                                    easing.type: Easing.OutCubic
                                 }
                             }
                         }
