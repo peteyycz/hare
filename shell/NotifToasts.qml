@@ -22,8 +22,8 @@ PanelWindow {
         right: true
     }
     margins {
-        top: 8
-        right: 12
+        top: Theme.popupGap
+        right: Theme.popupEdge
     }
     exclusiveZone: 0
 

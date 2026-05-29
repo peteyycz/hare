@@ -28,11 +28,10 @@ PanelWindow {
         right: true
     }
     margins {
-        // The bar reserves an exclusive zone, so the compositor already places
-        // us below it — this is just the 8px gap under the bar (matches the
-        // mockup's `top: bar-h + 16` / `bar-h + 8`), plus 12px from the edge.
-        top: 8
-        right: 12
+        // Shared top-right popup placement (see Theme). The bar's exclusive zone
+        // already offsets us below it; this is just the gap + edge inset.
+        top: Theme.popupGap
+        right: Theme.popupEdge
     }
     exclusiveZone: 0
 

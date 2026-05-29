@@ -101,6 +101,12 @@ Singleton {
     readonly property int gap: 11
     readonly property int pad: 14
 
+    // Placement for top-right popups (control center, notifications, …). The bar
+    // reserves an exclusive zone, so popups only need the gap below it + the
+    // inset from the screen edge. Reuse these for any future popup.
+    readonly property int popupGap: 8    // top margin (gap under the bar)
+    readonly property int popupEdge: 12  // right margin (inset from screen edge)
+
     FileView {
         path: root.configPath
         watchChanges: true
