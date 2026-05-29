@@ -1,0 +1,166 @@
+import QtQuick
+import QtQuick.Layouts
+import Quickshell
+import Quickshell.Wayland
+
+// Notification Center — the mockup's `#notif`: a floating header + a scrollable
+// stack of glass NotifCards at the top-right (no container glass; the cards are
+// the glass). A layer-shell surface toggled by the bell bar button, mirroring
+// the ControlCenterPanel placement.
+PanelWindow {
+    id: panel
+
+    property bool open: false
+    readonly property var items: Notifs.list?.values ?? []
+    readonly property int maxListHeight: (screen?.height ?? 1080) - Theme.barHeight - 80
+
+    visible: open
+    color: "transparent"
+
+    WlrLayershell.namespace: "hare"
+    WlrLayershell.layer: WlrLayer.Top
+
+    anchors {
+        top: true
+        right: true
+    }
+    margins {
+        top: 8
+        right: 12
+    }
+    exclusiveZone: 0
+
+    implicitWidth: 372
+    implicitHeight: col.implicitHeight
+
+    onVisibleChanged: Notifs.panelOpen = visible
+
+    ColumnLayout {
+        id: col
+        anchors {
+            top: parent.top
+            left: parent.left
+            right: parent.right
+        }
+        spacing: Theme.gap
+
+        // pop-in entrance
+        opacity: 0
+        transform: Scale {
+            id: popScale
+            origin.x: col.width
+            origin.y: 0
+            xScale: 0.97
+            yScale: 0.97
+        }
+        states: State {
+            name: "shown"
+            when: panel.visible
+            PropertyChanges {
+                target: col
+                opacity: 1
+            }
+            PropertyChanges {
+                target: popScale
+                xScale: 1
+                yScale: 1
+            }
+        }
+        transitions: Transition {
+            NumberAnimation {
+                properties: "opacity,xScale,yScale"
+                duration: 220
+                easing.type: Easing.OutCubic
+            }
+        }
+
+        // ---- header ----
+        Item {
+            Layout.fillWidth: true
+            Layout.leftMargin: 6
+            Layout.rightMargin: 6
+            implicitHeight: 22
+
+            // soft shadow for legibility over the wallpaper
+            Text {
+                anchors.verticalCenter: parent.verticalCenter
+                x: 1
+                y: 1
+                text: "Notifications"
+                font.family: Theme.fonts.sans
+                font.pixelSize: 15
+                font.weight: Font.DemiBold
+                color: Qt.rgba(0, 0, 0, 0.35)
+                visible: Theme.activeTone === "dark"
+            }
+            Text {
+                anchors.verticalCenter: parent.verticalCenter
+                text: "Notifications"
+                font.family: Theme.fonts.sans
+                font.pixelSize: 15
+                font.weight: Font.DemiBold
+                color: Theme.text
+            }
+
+            Text {
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.right: parent.right
+                visible: panel.items.length > 0
+                text: "Clear All"
+                font.family: Theme.fonts.sans
+                font.pixelSize: 12
+                color: clearMouse.containsMouse ? Theme.text : Theme.textDim
+
+                MouseArea {
+                    id: clearMouse
+                    anchors.fill: parent
+                    anchors.margins: -6
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: Notifs.clearAll()
+                }
+            }
+        }
+
+        // ---- empty state ----
+        Text {
+            Layout.fillWidth: true
+            Layout.topMargin: 4
+            Layout.bottomMargin: 8
+            visible: panel.items.length === 0
+            horizontalAlignment: Text.AlignHCenter
+            text: "No notifications"
+            font.family: Theme.fonts.sans
+            font.pixelSize: 13
+            color: Theme.textDim
+        }
+
+        // ---- list (newest first, scrolls past the cap) ----
+        Flickable {
+            Layout.fillWidth: true
+            Layout.preferredHeight: Math.min(listCol.implicitHeight, panel.maxListHeight)
+            visible: panel.items.length > 0
+            contentWidth: width
+            contentHeight: listCol.implicitHeight
+            clip: true
+            boundsBehavior: Flickable.StopAtBounds
+            interactive: contentHeight > height
+
+            ColumnLayout {
+                id: listCol
+                width: parent.width
+                spacing: Theme.gap
+
+                Repeater {
+                    model: panel.items.slice().reverse()
+
+                    delegate: NotifCard {
+                        required property var modelData
+                        notification: modelData
+                        mode: "center"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,4 +1,5 @@
 singleton Theme 1.0 Theme.qml
+singleton Notifs 1.0 Notifs.qml
 Bar 1.0 Bar.qml
 BarButton 1.0 BarButton.qml
 Icon 1.0 Icon.qml
@@ -14,6 +15,10 @@ Battery 1.0 Battery.qml
 ControlCenter 1.0 ControlCenter.qml
 ControlCenterPanel 1.0 ControlCenterPanel.qml
 CcToggle 1.0 CcToggle.qml
+NotifButton 1.0 NotifButton.qml
+NotificationCenterPanel 1.0 NotificationCenterPanel.qml
+NotifToasts 1.0 NotifToasts.qml
+NotifCard 1.0 NotifCard.qml
 SliderRow 1.0 SliderRow.qml
 Slider 1.0 Slider.qml
 MediaButton 1.0 MediaButton.qml

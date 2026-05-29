@@ -119,9 +119,18 @@ PanelWindow {
             Battery {
                 Layout.alignment: Qt.AlignVCenter
             }
+            NotifButton {
+                id: notifButton
+                Layout.alignment: Qt.AlignVCenter
+                // the two top-right popups share a slot — opening one closes the other
+                onOpenChanged: if (open)
+                    controlCenter.open = false
+            }
             ControlCenter {
                 id: controlCenter
                 Layout.alignment: Qt.AlignVCenter
+                onOpenChanged: if (open)
+                    notifButton.open = false
             }
             Power {
                 Layout.alignment: Qt.AlignVCenter
@@ -129,9 +138,13 @@ PanelWindow {
         }
     }
 
-    // Control-center popup — its own layer-shell surface anchored under the bar.
+    // Top-right popups — each its own layer-shell surface anchored under the bar.
     ControlCenterPanel {
         screen: bar.screen
         open: controlCenter.open
+    }
+    NotificationCenterPanel {
+        screen: bar.screen
+        open: notifButton.open
     }
 }

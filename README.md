@@ -26,8 +26,21 @@ The volume slider is wired to PipeWire, brightness to `brightnessctl`. Toggles w
 missing degrade to a no-op rather than erroring. Optional runtime tools: `networkmanager`,
 `hyprsunset`, `wf-recorder`, `brightnessctl`, plus `systemd` for Caffeine.
 
-> Status: early. The bar and control center work; launcher / session / OSDs are not part of
-> hare yet.
+### Notifications
+
+hare runs a freedesktop **notification server**. Incoming notifications pop in as transient
+**toasts** at the top-right of the primary screen (auto-dismiss after their timeout, default
+5s; **critical** notifications stay until dismissed), and persist in a **Notification Center**
+opened from the bar's bell button (with an unread badge). Cards show the app's real icon,
+support **action buttons** and the default action (click the body), per-card dismiss, and
+**Clear All**. The center and control center share the top-right slot — opening one closes the
+other.
+
+> **Only one process may own `org.freedesktop.Notifications`.** If you run **mako**, **dunst**,
+> or another daemon, stop it (`systemctl --user stop mako`) or hare's server won't register.
+
+> Status: early. The bar, control center, and notifications work; launcher / session / OSDs
+> are not part of hare yet.
 
 ## Install (Nix flake + home-manager)
 
