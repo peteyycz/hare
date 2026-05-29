@@ -12,6 +12,7 @@ PanelWindow {
 
     property bool open: false
     readonly property var items: Notifs.list?.values ?? []
+    // cap the scroll viewport so the window stays on-screen; the list scrolls
     readonly property int maxListHeight: (screen?.height ?? 1080) - Theme.barHeight - 80
 
     visible: open
@@ -42,14 +43,16 @@ PanelWindow {
             left: parent.left
             right: parent.right
         }
-        spacing: Theme.gap
+        // tight gap between the header and the card stack; cards keep Theme.gap
+        // between themselves (see listCol below)
+        spacing: 6
 
         // ---- header ----
         Item {
             Layout.fillWidth: true
             Layout.leftMargin: 6
             Layout.rightMargin: 6
-            implicitHeight: 22
+            implicitHeight: 20
 
             // soft shadow for legibility over the wallpaper
             Text {
@@ -106,6 +109,8 @@ PanelWindow {
         }
 
         // ---- list (newest first, scrolls past the cap) ----
+        // Safe to use a Flickable now that NotifCard is a plain Rectangle (no
+        // ShaderEffectSource — see NotifCard.qml).
         Flickable {
             Layout.fillWidth: true
             Layout.preferredHeight: Math.min(listCol.implicitHeight, panel.maxListHeight)

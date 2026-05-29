@@ -6,9 +6,13 @@ import Quickshell.Widgets
 // One notification, rendered as a floating glass card (the mockup's
 // `.notif-card`: each card is its own glass surface, not a panel row). Shared by
 // the Notification Center (`mode: "center"`, shows action buttons) and the
-// transient toasts (`mode: "toast"`, terser). Uses ClippingRectangle so the
-// sheen/content respect the rounded corners.
-ClippingRectangle {
+// transient toasts (`mode: "toast"`, terser).
+//
+// Deliberately a plain Rectangle + clip (NOT ClippingRectangle): a
+// ShaderEffectSource-backed card crashes when nested in a Flickable (the
+// scrollable center). The sheen is given matching top-corner radii so it doesn't
+// overrun the rounded corners despite the rectangular clip.
+Rectangle {
     id: root
 
     required property var notification
@@ -24,6 +28,8 @@ ClippingRectangle {
     color: Theme.bg
     border.width: 1
     border.color: Theme.border
+    antialiasing: true
+    clip: true
 
     // top specular sheen + 1px edge highlight (matches the bar / control center)
     Rectangle {
@@ -33,6 +39,10 @@ ClippingRectangle {
             right: parent.right
         }
         height: parent.height * 0.5
+        // round the top corners to the card so the sheen doesn't paint into the
+        // rounded-off corners (clip is rectangular, not rounded)
+        topLeftRadius: root.radius
+        topRightRadius: root.radius
         gradient: Gradient {
             GradientStop {
                 position: 0.0
