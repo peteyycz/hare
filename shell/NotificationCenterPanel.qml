@@ -44,36 +44,6 @@ PanelWindow {
         }
         spacing: Theme.gap
 
-        // pop-in entrance
-        opacity: 0
-        transform: Scale {
-            id: popScale
-            origin.x: col.width
-            origin.y: 0
-            xScale: 0.97
-            yScale: 0.97
-        }
-        states: State {
-            name: "shown"
-            when: panel.visible
-            PropertyChanges {
-                target: col
-                opacity: 1
-            }
-            PropertyChanges {
-                target: popScale
-                xScale: 1
-                yScale: 1
-            }
-        }
-        transitions: Transition {
-            NumberAnimation {
-                properties: "opacity,xScale,yScale"
-                duration: 220
-                easing.type: Easing.OutCubic
-            }
-        }
-
         // ---- header ----
         Item {
             Layout.fillWidth: true
@@ -154,10 +124,56 @@ PanelWindow {
                 Repeater {
                     model: panel.items.slice().reverse()
 
+                    // each card fades + slides in, staggered top-to-bottom, when
+                    // the center opens (reverts when it closes, so it replays)
                     delegate: NotifCard {
+                        id: card
                         required property var modelData
+                        required property int index
                         notification: modelData
                         mode: "center"
+
+                        opacity: 0
+                        transform: Translate {
+                            id: slide
+                            y: 8
+                        }
+                        states: State {
+                            name: "in"
+                            when: panel.visible
+                            PropertyChanges {
+                                target: card
+                                opacity: 1
+                            }
+                            PropertyChanges {
+                                target: slide
+                                y: 0
+                            }
+                        }
+                        transitions: Transition {
+                            to: "in"
+                            SequentialAnimation {
+                                PauseAnimation {
+                                    duration: card.index * 45
+                                }
+                                ParallelAnimation {
+                                    NumberAnimation {
+                                        target: card
+                                        property: "opacity"
+                                        to: 1
+                                        duration: 200
+                                        easing.type: Easing.OutCubic
+                                    }
+                                    NumberAnimation {
+                                        target: slide
+                                        property: "y"
+                                        to: 0
+                                        duration: 220
+                                        easing.type: Easing.OutCubic
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
