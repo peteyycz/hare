@@ -102,11 +102,17 @@ Singleton {
             n.dismiss();
         root.toasts = [];
     }
+    // Invoke the implicit "default" action (body-click) if the notification has
+    // one. Does NOT dismiss — the caller decides: a clicked toast is "handled"
+    // and removed from the center, a center card stays until its × is pressed.
     function invokeDefault(n) {
         const a = (n?.actions ?? []).find(x => x.identifier === "default");
         if (a)
             a.invoke();
-        dismiss(n);
+    }
+    // does this notification carry an implicit body-click action?
+    function hasDefault(n) {
+        return (n?.actions ?? []).some(x => x.identifier === "default");
     }
     function accent(n) {
         return (n?.urgency === NotificationUrgency.Critical) ? Theme.error : Theme.accent;
