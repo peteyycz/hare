@@ -144,8 +144,7 @@ PanelWindow {
         anchors.fill: parent
         radius: Theme.rLg
         color: Theme.bg
-        border.width: 1
-        border.color: Theme.border
+        // borderless glass, like the bar
 
         // entrance animation (pop-in)
         opacity: 0
@@ -177,8 +176,9 @@ PanelWindow {
             }
         }
 
-        // top specular sheen
+        // top specular sheen — light theme only (restrained in dark)
         Rectangle {
+            visible: Theme.activeTone === "light"
             anchors {
                 top: parent.top
                 left: parent.left
@@ -196,8 +196,9 @@ PanelWindow {
                 }
             }
         }
-        // bright 1px top edge
+        // bright 1px top edge — light theme only
         Rectangle {
+            visible: Theme.activeTone === "light"
             anchors {
                 top: parent.top
                 left: parent.left

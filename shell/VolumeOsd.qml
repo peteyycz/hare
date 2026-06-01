@@ -107,8 +107,9 @@ PanelWindow {
             }
         }
 
-        // top specular sheen (`.glass::after` inner glow)
+        // top specular sheen (`.glass::after` inner glow) — light theme only
         Rectangle {
+            visible: Theme.activeTone === "light"
             anchors.fill: parent
             radius: parent.radius
             gradient: Gradient {
@@ -126,8 +127,9 @@ PanelWindow {
                 }
             }
         }
-        // 1px top edge highlight (`.glass::before` specular rim)
+        // 1px top edge highlight (`.glass::before` specular rim) — light only
         Rectangle {
+            visible: Theme.activeTone === "light"
             anchors {
                 top: parent.top
                 left: parent.left

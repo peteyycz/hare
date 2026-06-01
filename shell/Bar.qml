@@ -49,12 +49,16 @@ PanelWindow {
 
         radius: bar.edge ? 0 : Theme.rMd + 2
         color: Theme.bg
-        border.width: 1
+        // notched is borderless (matches the design); floating/full keep the rim
+        border.width: bar.notched ? 0 : 1
         border.color: Theme.border
         clip: true
 
-        // soft top specular glow (the liquid-glass sheen)
+        // soft top specular glow (the liquid-glass sheen). Like the design's
+        // `--glass-hi`, the sheen is restrained — only shown in the light theme;
+        // in dark it would read as a bright band, so it's dropped.
         Rectangle {
+            visible: Theme.activeTone === "light"
             anchors {
                 top: parent.top
                 left: parent.left
@@ -73,8 +77,10 @@ PanelWindow {
             }
         }
 
-        // bright 1px top edge highlight
+        // bright 1px top edge highlight — light theme only, like the sheen
+        // above; in dark it reads as a hairline on the screen edge.
         Rectangle {
+            visible: Theme.activeTone === "light"
             anchors {
                 top: parent.top
                 left: parent.left

@@ -65,8 +65,8 @@ PanelWindow {
             Layout.fillWidth: true
             spacing: 8
 
-            // title pill — same glass material as the NotifCards (bg + border +
-            // specular sheen + edge highlight).
+            // title pill — same glass material as the NotifCards (borderless bg
+            // + specular sheen + edge highlight).
             Rectangle {
                 id: titlePill
                 implicitHeight: 28
@@ -74,14 +74,14 @@ PanelWindow {
 
                 radius: Theme.rPill
                 color: Theme.bg
-                border.width: 1
-                border.color: Theme.border
+                // borderless glass, like the bar
                 antialiasing: true
 
                 // top specular sheen — a full-size overlay sharing the pill's
                 // radius, so it follows the rounded corners without a clip; the
-                // gradient fades out by the middle
+                // gradient fades out by the middle (light theme only)
                 Rectangle {
+                    visible: Theme.activeTone === "light"
                     anchors.fill: parent
                     radius: parent.radius
                     gradient: Gradient {
@@ -99,8 +99,9 @@ PanelWindow {
                         }
                     }
                 }
-                // 1px top edge highlight
+                // 1px top edge highlight — light theme only
                 Rectangle {
+                    visible: Theme.activeTone === "light"
                     anchors {
                         top: parent.top
                         left: parent.left
@@ -140,8 +141,7 @@ PanelWindow {
 
                 radius: Theme.rPill
                 color: Theme.bg
-                border.width: 1
-                border.color: Theme.border
+                // borderless glass, like the bar
                 antialiasing: true
 
                 // hover wash — a fillStrong highlight fades in on hover, the same
@@ -159,8 +159,9 @@ PanelWindow {
 
                 // top specular sheen — a full-size overlay sharing the pill's
                 // radius, so it follows the rounded corners without a clip; the
-                // gradient fades out by the middle
+                // gradient fades out by the middle (light theme only)
                 Rectangle {
+                    visible: Theme.activeTone === "light"
                     anchors.fill: parent
                     radius: parent.radius
                     gradient: Gradient {
@@ -178,8 +179,9 @@ PanelWindow {
                         }
                     }
                 }
-                // 1px top edge highlight
+                // 1px top edge highlight — light theme only
                 Rectangle {
+                    visible: Theme.activeTone === "light"
                     anchors {
                         top: parent.top
                         left: parent.left

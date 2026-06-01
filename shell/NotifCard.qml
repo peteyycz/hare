@@ -26,13 +26,14 @@ Rectangle {
 
     radius: Theme.rLg
     color: Theme.bg
-    border.width: 1
-    border.color: Theme.border
+    // borderless glass, like the bar
     antialiasing: true
     clip: true
 
-    // top specular sheen + 1px edge highlight (matches the bar / control center)
+    // top specular sheen + 1px edge highlight (matches the bar / control
+    // center) — light theme only, kept restrained in dark like the design
     Rectangle {
+        visible: Theme.activeTone === "light"
         anchors {
             top: parent.top
             left: parent.left
@@ -55,6 +56,7 @@ Rectangle {
         }
     }
     Rectangle {
+        visible: Theme.activeTone === "light"
         anchors {
             top: parent.top
             left: parent.left
