@@ -3,6 +3,7 @@ singleton Notifs 1.0 Notifs.qml
 singleton GameMode 1.0 GameMode.qml
 Bar 1.0 Bar.qml
 BarButton 1.0 BarButton.qml
+BarCorner 1.0 BarCorner.qml
 Icon 1.0 Icon.qml
 VLine 1.0 VLine.qml
 Workspaces 1.0 Workspaces.qml

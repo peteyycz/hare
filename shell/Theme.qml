@@ -15,10 +15,19 @@ Singleton {
     readonly property string tonePath: (Quickshell.env("XDG_STATE_HOME") || (home + "/.local/state")) + "/hare/tone"
 
     property var config: ({})
-    property string detectedTone: "light"
+    property string detectedTone: "dark"
 
-    readonly property string mode: config?.theme?.mode ?? "adaptive"
-    readonly property string activeTone: mode === "adaptive" ? detectedTone : mode
+    // runtime in-shell override of the tone, set by the Control Center toggle.
+    // Empty = follow config (`mode` / adaptive). Ephemeral: resets on restart.
+    property string userTone: ""
+
+    readonly property string mode: config?.theme?.mode ?? "dark"
+    readonly property string activeTone: userTone !== "" ? userTone : (mode === "adaptive" ? detectedTone : mode)
+
+    // flip the live tone between dark and light (Control Center toggle)
+    function toggleTone() {
+        userTone = activeTone === "dark" ? "light" : "dark";
+    }
 
     readonly property var fallback: ({
             dark: {
@@ -66,7 +75,7 @@ Singleton {
         })
     readonly property var barCfg: config?.bar ?? ({
             height: 36,
-            style: "floating"
+            style: "notched"
         })
 
     function rgba(hex, a) {
@@ -97,7 +106,7 @@ Singleton {
     readonly property int rSm: 8
     readonly property int rPill: 999
     readonly property int barHeight: barCfg.height ?? 36
-    readonly property string barStyle: barCfg.style ?? "floating"
+    readonly property string barStyle: barCfg.style ?? "notched"
     readonly property int gap: 11
     readonly property int pad: 14
 

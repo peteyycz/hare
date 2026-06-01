@@ -225,6 +225,14 @@ PanelWindow {
                 columnSpacing: Theme.gap
 
                 CcToggle {
+                    // moon when dark, sun when light
+                    icon: Theme.activeTone === "dark" ? 0xf186 : 0xf185
+                    name: "Dark Mode"
+                    on: Theme.activeTone === "dark"
+                    status: Theme.activeTone === "dark" ? "On" : "Off"
+                    onToggled: Theme.toggleTone()
+                }
+                CcToggle {
                     icon: 0xf05b // crosshairs
                     name: "Game Mode"
                     on: GameMode.enabled

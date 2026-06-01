@@ -15,8 +15,12 @@ PanelWindow {
 
     // game mode forces the full-width, square, flush-to-top bar (no floating
     // inset/rounding) to match the stripped-down compositor look
-    readonly property bool full: Theme.barStyle === "full" || GameMode.enabled
-    readonly property int inset: full ? 0 : 8
+    readonly property bool notched: Theme.barStyle === "notched" && !GameMode.enabled
+    // edge-to-edge (square, flush) covers both "full" and "notched"
+    readonly property bool edge: Theme.barStyle === "full" || notched || GameMode.enabled
+    readonly property int inset: edge ? 0 : 8
+    // depth of the concave bottom-corner scoop (notched style only)
+    readonly property int notch: 16
 
     WlrLayershell.namespace: "hare"
     color: "transparent"
@@ -26,18 +30,24 @@ PanelWindow {
         left: true
         right: true
     }
-    implicitHeight: Theme.barHeight + inset
-    exclusiveZone: implicitHeight
+    // the surface is tall enough to hold the corner fillets below the bar, but
+    // only the bar itself reserves space — the scoops hang decoratively over
+    // the area just under the bar.
+    implicitHeight: Theme.barHeight + (notched ? notch : inset)
+    exclusiveZone: Theme.barHeight + (edge ? 0 : inset)
 
     Rectangle {
         id: glass
 
-        anchors.fill: parent
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
         anchors.topMargin: bar.inset
         anchors.leftMargin: bar.inset
         anchors.rightMargin: bar.inset
+        height: Theme.barHeight
 
-        radius: bar.full ? 0 : Theme.rMd + 2
+        radius: bar.edge ? 0 : Theme.rMd + 2
         color: Theme.bg
         border.width: 1
         border.color: Theme.border
@@ -136,6 +146,24 @@ PanelWindow {
                 Layout.alignment: Qt.AlignVCenter
             }
         }
+    }
+
+    // Notched style: concave glass scoops below the bar's bottom corners.
+    BarCorner {
+        visible: bar.notched
+        side: "left"
+        size: bar.notch
+        color: Theme.bg
+        anchors.top: glass.bottom
+        anchors.left: glass.left
+    }
+    BarCorner {
+        visible: bar.notched
+        side: "right"
+        size: bar.notch
+        color: Theme.bg
+        anchors.top: glass.bottom
+        anchors.right: glass.right
     }
 
     // Top-right popups — each its own layer-shell surface anchored under the bar.

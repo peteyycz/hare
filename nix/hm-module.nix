@@ -68,7 +68,7 @@ in
           "dark"
           "light"
         ];
-        default = "adaptive";
+        default = "dark";
         description = "Glass tone. 'adaptive' picks dark/light from the wallpaper's luminance.";
       };
       palette = {
@@ -102,9 +102,10 @@ in
         type = lib.types.enum [
           "floating"
           "full"
+          "notched"
         ];
-        default = "floating";
-        description = "Bar style: floating (inset, rounded) or full (edge-to-edge).";
+        default = "notched";
+        description = "Bar style: floating (inset, rounded), full (edge-to-edge), or notched (edge-to-edge with concave bottom corners scooping into the screen).";
       };
     };
   };
