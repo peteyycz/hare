@@ -131,7 +131,7 @@ PanelWindow {
         }
         const dir = (Quickshell.env("HOME") ?? "") + "/Videos";
         recPath = dir + "/hare-" + Qt.formatDateTime(new Date(), "yyyyMMdd-HHmmss") + ".mp4";
-        recProc.command = ["sh", "-c", "mkdir -p \"$1\"; exec wf-recorder -f \"$2\"", "sh", dir, recPath];
+        recProc.command = ["sh", "-c", "mkdir -p \"$1\"; exec wf-recorder -f \"$2\" -c libx264 -p preset=fast -p crf=18 --pixel-format yuv420p", "sh", dir, recPath];
         recProc.running = true;
     }
 
