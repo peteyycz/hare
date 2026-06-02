@@ -5,6 +5,8 @@ Translucent grayscale panels with compositor blur that read neutrally over any w
 and an **adaptive tone** that flips between dark and light glass based on the wallpaper's
 luminance.
 
+![hare bar + control center](docs/screenshot.png)
+
 Currently ships a top **bar**: workspace pills, active-window label, a centered clock + date,
 now-playing media (with an animated EQ), system tray, network / volume / battery, and
 control-center + power buttons. macOS-Tahoe-style glass with a lavender accent.
