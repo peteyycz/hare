@@ -44,11 +44,17 @@ Singleton {
 
         onNotification: function (n) {
             root.times[n.id] = Date.now();
-            n.tracked = !n.transient;   // transient hints toast only, don't persist
-            // In Focus/DND, keep collecting into the center but skip the toast —
-            // except Critical, which always pops through.
-            if (!root.dnd || n.urgency === NotificationUrgency.Critical)
-                root.pushToast(n);
+            // Defer model mutations off the DBus signal frame. Mutating
+            // `tracked` and `toasts` synchronously here triggered Repeater
+            // delegate rebuilds (center + toasts) mid-signal, which crashed
+            // Qt's delegate-model incubation (VDMListDelegateDataType::
+            // createMissingProperties). callLater serialises them to the
+            // next event-loop tick, after Notify() has returned.
+            Qt.callLater(() => {
+                n.tracked = !n.transient;
+                if (!root.dnd || n.urgency === NotificationUrgency.Critical)
+                    root.pushToast(n);
+            });
         }
     }
 
