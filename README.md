@@ -2,25 +2,10 @@
 
 A neutral **liquid-glass** desktop shell built on [Quickshell](https://quickshell.org).
 Translucent grayscale panels with compositor blur that read neutrally over any wallpaper —
-and an **adaptive tone** that flips between dark and light glass based on the wallpaper's
-luminance.
-
-Currently ships a top **bar**: workspace pills, active-window label, a centered clock + date,
-now-playing media (with an animated EQ), system tray, network / volume / battery, and
-control-center + power buttons. macOS-Tahoe-style glass with a lavender accent.
+and an **adaptive tone** that flips between dark and light glass.
 
 The control-center button opens a **Control Center** popup (its own blurred layer surface):
-six quick toggles, brightness + volume sliders, and an MPRIS now-playing card. The toggles
-drive real backends where one exists:
-
-| Toggle | Backend |
-| --- | --- |
-| Wi-Fi | NetworkManager (`nmcli radio wifi`), shows the active SSID |
-| Bluetooth | native `Quickshell.Bluetooth` adapter, shows the connected device |
-| Focus | cosmetic for now (no notification daemon wired) |
-| Night Light | `hyprsunset -t 3500` (held alive while on) |
-| Caffeine | `systemd-inhibit` idle/sleep lock (held while on) |
-| Record | `wf-recorder` → `~/Videos/hare-<timestamp>.mp4` (SIGINT to stop) |
+six quick toggles, brightness + volume sliders, and an MPRIS now-playing card.
 
 The volume slider is wired to PipeWire, brightness to `brightnessctl`. Toggles whose tool is
 missing degrade to a no-op rather than erroring. Optional runtime tools: `networkmanager`,
@@ -28,13 +13,7 @@ missing degrade to a no-op rather than erroring. Optional runtime tools: `networ
 
 ### Notifications
 
-hare runs a freedesktop **notification server**. Incoming notifications pop in as transient
-**toasts** at the top-right of the primary screen (auto-dismiss after their timeout, default
-5s; **critical** notifications stay until dismissed), and persist in a **Notification Center**
-opened from the bar's bell button (with an unread badge). Cards show the app's real icon,
-support **action buttons** and the default action (click the body), per-card dismiss, and
-**Clear All**. The center and control center share the top-right slot — opening one closes the
-other.
+hare runs a freedesktop **notification server**.
 
 > **Only one process may own `org.freedesktop.Notifications`.** If you run **mako**, **dunst**,
 > or another daemon, stop it (`systemctl --user stop mako`) or hare's server won't register.
