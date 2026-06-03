@@ -95,9 +95,14 @@ PanelWindow {
         }
 
         // ---- left segment ----
+        // right edge stops before the centered clock so a very long window
+        // title can't slide behind it; the title inside ActiveWindow elides
+        // within whatever room is left.
         RowLayout {
             anchors.left: parent.left
             anchors.leftMargin: 12
+            anchors.right: clock.left
+            anchors.rightMargin: 12
             anchors.verticalCenter: parent.verticalCenter
             spacing: 7
 
@@ -107,11 +112,13 @@ PanelWindow {
             VLine {}
             ActiveWindow {
                 Layout.alignment: Qt.AlignVCenter
+                Layout.fillWidth: true
             }
         }
 
         // ---- center clock ----
         Clock {
+            id: clock
             anchors.centerIn: parent
         }
 
@@ -135,18 +142,30 @@ PanelWindow {
             Battery {
                 Layout.alignment: Qt.AlignVCenter
             }
+            Network {
+                id: networkButton
+                Layout.alignment: Qt.AlignVCenter
+                // the top-right popups share a slot — opening one closes the others
+                onOpenChanged: if (open) {
+                    notifButton.open = false;
+                    controlCenter.open = false;
+                }
+            }
             NotifButton {
                 id: notifButton
                 Layout.alignment: Qt.AlignVCenter
-                // the two top-right popups share a slot — opening one closes the other
-                onOpenChanged: if (open)
-                    controlCenter.open = false
+                onOpenChanged: if (open) {
+                    networkButton.open = false;
+                    controlCenter.open = false;
+                }
             }
             ControlCenter {
                 id: controlCenter
                 Layout.alignment: Qt.AlignVCenter
-                onOpenChanged: if (open)
-                    notifButton.open = false
+                onOpenChanged: if (open) {
+                    networkButton.open = false;
+                    notifButton.open = false;
+                }
             }
             Power {
                 Layout.alignment: Qt.AlignVCenter
@@ -183,16 +202,22 @@ PanelWindow {
         screen: bar.screen
         open: notifButton.open
     }
+    NetworkPanel {
+        id: networkPanel
+        screen: bar.screen
+        open: networkButton.open
+    }
 
     // Click-outside-to-close. While a popup is open, Hyprland grabs input for
     // these surfaces only: clicks inside the panel work normally, and the first
     // click anywhere outside fires `cleared`, which closes the open popup.
     HyprlandFocusGrab {
-        active: controlCenter.open || notifButton.open
-        windows: [ccPanel, notifPanel]
+        active: controlCenter.open || notifButton.open || networkButton.open
+        windows: [ccPanel, notifPanel, networkPanel]
         onCleared: {
             controlCenter.open = false;
             notifButton.open = false;
+            networkButton.open = false;
         }
     }
 }

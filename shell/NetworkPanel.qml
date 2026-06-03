@@ -1,0 +1,278 @@
+import QtQuick
+import QtQuick.Layouts
+import Quickshell
+import Quickshell.Wayland
+import Quickshell.Widgets
+
+// Wi-Fi Network panel — a layer-shell popup mirroring ControlCenterPanel.
+// Lists the visible networks (Networks singleton drives the data), a refresh
+// button that triggers a `nmcli device wifi rescan`, and an inline password
+// input on the selected row. Active network is highlighted.
+//
+// `keyboardFocus: OnDemand` is required so the password TextInput can take
+// focus — without it the layer surface gets no keyboard at all and typing
+// would be a no-op.
+PanelWindow {
+    id: panel
+
+    property bool open: false
+
+    // Only one row may be expanded at a time; toggling another collapses the
+    // previous. Reset every time the panel opens so we don't reopen on a
+    // password input for a stale row.
+    property string expandedSsid: ""
+
+    visible: open
+    color: "transparent"
+
+    WlrLayershell.namespace: "hare"
+    WlrLayershell.layer: WlrLayer.Top
+    WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
+
+    anchors {
+        top: true
+        right: true
+    }
+    margins {
+        top: Theme.popupGap
+        right: Theme.popupEdge
+    }
+    exclusiveZone: 0
+
+    implicitWidth: 372
+    implicitHeight: col.implicitHeight + Theme.pad * 2
+
+    onOpenChanged: {
+        if (open) {
+            panel.expandedSsid = "";
+            Networks.refresh();
+        }
+    }
+
+    ClippingRectangle {
+        id: glass
+        anchors.fill: parent
+        radius: Theme.rLg
+        color: Theme.bg
+
+        // entrance animation (pop-in) — same easing as the Control Center
+        opacity: 0
+        transform: Scale {
+            id: popScale
+            origin.x: glass.width
+            origin.y: 0
+            xScale: 0.97
+            yScale: 0.97
+        }
+        states: State {
+            name: "shown"
+            when: panel.visible
+            PropertyChanges {
+                target: glass
+                opacity: 1
+            }
+            PropertyChanges {
+                target: popScale
+                xScale: 1
+                yScale: 1
+            }
+        }
+        transitions: Transition {
+            NumberAnimation {
+                properties: "opacity,xScale,yScale"
+                duration: 220
+                easing.type: Easing.OutCubic
+            }
+        }
+
+        // top specular sheen — light theme only
+        Rectangle {
+            visible: Theme.activeTone === "light"
+            anchors {
+                top: parent.top
+                left: parent.left
+                right: parent.right
+            }
+            height: parent.height * 0.4
+            gradient: Gradient {
+                GradientStop {
+                    position: 0.0
+                    color: Qt.rgba(1, 1, 1, 0.10)
+                }
+                GradientStop {
+                    position: 1.0
+                    color: "transparent"
+                }
+            }
+        }
+        // 1px top edge highlight — light theme only
+        Rectangle {
+            visible: Theme.activeTone === "light"
+            anchors {
+                top: parent.top
+                left: parent.left
+                right: parent.right
+            }
+            anchors.topMargin: 1
+            anchors.leftMargin: glass.radius
+            anchors.rightMargin: glass.radius
+            height: 1
+            color: Theme.hi
+            opacity: 0.5
+        }
+
+        ColumnLayout {
+            id: col
+            anchors.fill: parent
+            anchors.margins: Theme.pad
+            spacing: Theme.gap
+
+            // ---- header ----
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 8
+
+                Text {
+                    text: "Wi-Fi"
+                    font.family: Theme.fonts.sans
+                    font.pixelSize: 15
+                    font.weight: Font.DemiBold
+                    color: Theme.text
+                }
+
+                Text {
+                    visible: Networks.scanning
+                    text: "scanning…"
+                    font.family: Theme.fonts.sans
+                    font.pixelSize: 11
+                    color: Theme.textDim
+                }
+
+                Item {
+                    Layout.fillWidth: true
+                }
+
+                // Wi-Fi radio toggle pill
+                Rectangle {
+                    implicitWidth: radioText.implicitWidth + 22
+                    implicitHeight: 28
+                    radius: Theme.rPill
+                    color: Networks.wifiEnabled ? Theme.fillStrong : Theme.fill
+                    border.width: 1
+                    border.color: Theme.hairline
+
+                    Text {
+                        id: radioText
+                        anchors.centerIn: parent
+                        text: Networks.wifiEnabled ? "On" : "Off"
+                        font.family: Theme.fonts.sans
+                        font.pixelSize: 11
+                        color: Theme.text
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: Networks.toggleWifi()
+                    }
+                }
+
+                // Refresh button — fires a full nmcli rescan + relist
+                Rectangle {
+                    implicitWidth: 28
+                    implicitHeight: 28
+                    radius: 14
+                    color: refreshMouse.containsMouse ? Theme.fillStrong : Theme.fill
+                    border.width: 1
+                    border.color: Theme.hairline
+
+                    Icon {
+                        anchors.centerIn: parent
+                        code: 0xf021 // nf-fa-refresh
+                        size: 12
+                        color: Theme.text
+                    }
+
+                    MouseArea {
+                        id: refreshMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        enabled: Networks.wifiEnabled
+                        onClicked: Networks.refresh()
+                    }
+                }
+            }
+
+            // ---- wifi-disabled state ----
+            Text {
+                Layout.fillWidth: true
+                Layout.topMargin: 8
+                Layout.bottomMargin: 8
+                visible: !Networks.wifiEnabled
+                horizontalAlignment: Text.AlignHCenter
+                text: "Wi-Fi is off"
+                font.family: Theme.fonts.sans
+                font.pixelSize: 13
+                color: Theme.textDim
+            }
+
+            // ---- empty state ----
+            Text {
+                Layout.fillWidth: true
+                Layout.topMargin: 8
+                Layout.bottomMargin: 8
+                visible: Networks.wifiEnabled && Networks.networks.length === 0
+                horizontalAlignment: Text.AlignHCenter
+                text: Networks.scanning ? "Scanning…" : "No networks found"
+                font.family: Theme.fonts.sans
+                font.pixelSize: 13
+                color: Theme.textDim
+            }
+
+            // ---- list ----
+            // Cap the viewport so the panel stays on-screen if a lot of APs
+            // are visible; the list scrolls past the cap.
+            Flickable {
+                Layout.fillWidth: true
+                Layout.preferredHeight: Math.min(listCol.implicitHeight, 420)
+                visible: Networks.wifiEnabled && Networks.networks.length > 0
+                contentWidth: width
+                contentHeight: listCol.implicitHeight
+                clip: true
+                boundsBehavior: Flickable.StopAtBounds
+                interactive: contentHeight > height
+
+                ColumnLayout {
+                    id: listCol
+                    width: parent.width
+                    spacing: Theme.gap
+
+                    Repeater {
+                        model: Networks.networks
+
+                        delegate: NetworkItem {
+                            required property var modelData
+                            net: modelData
+                            expanded: panel.expandedSsid === modelData.ssid
+                            onToggle: panel.expandedSsid = (panel.expandedSsid === modelData.ssid) ? "" : modelData.ssid
+                        }
+                    }
+                }
+            }
+
+            // ---- error banner ----
+            Text {
+                Layout.fillWidth: true
+                Layout.topMargin: 4
+                visible: Networks.lastError.length > 0
+                wrapMode: Text.WordWrap
+                text: Networks.lastError
+                color: Theme.error
+                font.family: Theme.fonts.sans
+                font.pixelSize: 11
+            }
+        }
+    }
+}

@@ -1,5 +1,6 @@
 singleton Theme 1.0 Theme.qml
 singleton Notifs 1.0 Notifs.qml
+singleton Networks 1.0 Networks.qml
 singleton GameMode 1.0 GameMode.qml
 Bar 1.0 Bar.qml
 BarButton 1.0 BarButton.qml
@@ -18,6 +19,9 @@ ControlCenterPanel 1.0 ControlCenterPanel.qml
 CcToggle 1.0 CcToggle.qml
 NotifButton 1.0 NotifButton.qml
 NotificationCenterPanel 1.0 NotificationCenterPanel.qml
+Network 1.0 Network.qml
+NetworkPanel 1.0 NetworkPanel.qml
+NetworkItem 1.0 NetworkItem.qml
 NotifToasts 1.0 NotifToasts.qml
 VolumeOsd 1.0 VolumeOsd.qml
 NotifCard 1.0 NotifCard.qml

@@ -35,16 +35,18 @@ RowLayout {
 
     Text {
         Layout.alignment: Qt.AlignVCenter
+        Layout.maximumWidth: 160
         text: root.cap(root.appClass)
         font.family: Theme.fonts.sans
         font.pixelSize: 14
         font.weight: Font.DemiBold
         color: Theme.text
+        elide: Text.ElideRight
     }
 
     Text {
         Layout.alignment: Qt.AlignVCenter
-        Layout.maximumWidth: 280
+        Layout.fillWidth: true
         visible: root.winTitle !== "" && root.winTitle !== root.cap(root.appClass)
         text: "— " + root.winTitle
         font.family: Theme.fonts.sans
