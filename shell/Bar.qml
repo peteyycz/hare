@@ -147,6 +147,16 @@ PanelWindow {
                 Layout.alignment: Qt.AlignVCenter
                 // the top-right popups share a slot — opening one closes the others
                 onOpenChanged: if (open) {
+                    bluetoothButton.open = false;
+                    notifButton.open = false;
+                    controlCenter.open = false;
+                }
+            }
+            BluetoothButton {
+                id: bluetoothButton
+                Layout.alignment: Qt.AlignVCenter
+                onOpenChanged: if (open) {
+                    networkButton.open = false;
                     notifButton.open = false;
                     controlCenter.open = false;
                 }
@@ -156,6 +166,7 @@ PanelWindow {
                 Layout.alignment: Qt.AlignVCenter
                 onOpenChanged: if (open) {
                     networkButton.open = false;
+                    bluetoothButton.open = false;
                     controlCenter.open = false;
                 }
             }
@@ -164,6 +175,7 @@ PanelWindow {
                 Layout.alignment: Qt.AlignVCenter
                 onOpenChanged: if (open) {
                     networkButton.open = false;
+                    bluetoothButton.open = false;
                     notifButton.open = false;
                 }
             }
@@ -207,17 +219,23 @@ PanelWindow {
         screen: bar.screen
         open: networkButton.open
     }
+    BluetoothPanel {
+        id: btPanel
+        screen: bar.screen
+        open: bluetoothButton.open
+    }
 
     // Click-outside-to-close. While a popup is open, Hyprland grabs input for
     // these surfaces only: clicks inside the panel work normally, and the first
     // click anywhere outside fires `cleared`, which closes the open popup.
     HyprlandFocusGrab {
-        active: controlCenter.open || notifButton.open || networkButton.open
-        windows: [ccPanel, notifPanel, networkPanel]
+        active: controlCenter.open || notifButton.open || networkButton.open || bluetoothButton.open
+        windows: [ccPanel, notifPanel, networkPanel, btPanel]
         onCleared: {
             controlCenter.open = false;
             notifButton.open = false;
             networkButton.open = false;
+            bluetoothButton.open = false;
         }
     }
 }
