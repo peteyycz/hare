@@ -140,13 +140,21 @@ PanelWindow {
                 Layout.alignment: Qt.AlignVCenter
             }
             Battery {
+                id: battery
                 Layout.alignment: Qt.AlignVCenter
+                onOpenChanged: if (open) {
+                    networkButton.open = false;
+                    bluetoothButton.open = false;
+                    notifButton.open = false;
+                    controlCenter.open = false;
+                }
             }
             Network {
                 id: networkButton
                 Layout.alignment: Qt.AlignVCenter
                 // the top-right popups share a slot — opening one closes the others
                 onOpenChanged: if (open) {
+                    battery.open = false;
                     bluetoothButton.open = false;
                     notifButton.open = false;
                     controlCenter.open = false;
@@ -156,6 +164,7 @@ PanelWindow {
                 id: bluetoothButton
                 Layout.alignment: Qt.AlignVCenter
                 onOpenChanged: if (open) {
+                    battery.open = false;
                     networkButton.open = false;
                     notifButton.open = false;
                     controlCenter.open = false;
@@ -165,6 +174,7 @@ PanelWindow {
                 id: notifButton
                 Layout.alignment: Qt.AlignVCenter
                 onOpenChanged: if (open) {
+                    battery.open = false;
                     networkButton.open = false;
                     bluetoothButton.open = false;
                     controlCenter.open = false;
@@ -174,6 +184,7 @@ PanelWindow {
                 id: controlCenter
                 Layout.alignment: Qt.AlignVCenter
                 onOpenChanged: if (open) {
+                    battery.open = false;
                     networkButton.open = false;
                     bluetoothButton.open = false;
                     notifButton.open = false;
@@ -224,18 +235,25 @@ PanelWindow {
         screen: bar.screen
         open: bluetoothButton.open
     }
+    BatteryPanel {
+        id: battPanel
+        screen: bar.screen
+        open: battery.open
+        onClose: battery.open = false
+    }
 
     // Click-outside-to-close. While a popup is open, Hyprland grabs input for
     // these surfaces only: clicks inside the panel work normally, and the first
     // click anywhere outside fires `cleared`, which closes the open popup.
     HyprlandFocusGrab {
-        active: controlCenter.open || notifButton.open || networkButton.open || bluetoothButton.open
-        windows: [ccPanel, notifPanel, networkPanel, btPanel]
+        active: controlCenter.open || notifButton.open || networkButton.open || bluetoothButton.open || battery.open
+        windows: [ccPanel, notifPanel, networkPanel, btPanel, battPanel]
         onCleared: {
             controlCenter.open = false;
             notifButton.open = false;
             networkButton.open = false;
             bluetoothButton.open = false;
+            battery.open = false;
         }
     }
 }

@@ -2,9 +2,15 @@ import QtQuick
 import Quickshell.Services.UPower
 
 // Battery level + percentage. Only shown on devices with a laptop battery.
+// Clicking opens the BatteryPanel power-profile chooser — but only when
+// powerprofilesctl is installed; otherwise the click is a no-op so we don't
+// pop up an empty surface.
 BarButton {
     id: root
     hpad: 7
+
+    property bool open: false
+    active: open
 
     readonly property var dev: UPower.displayDevice
     readonly property bool present: dev?.isLaptopBattery ?? false
@@ -15,6 +21,11 @@ BarButton {
     readonly property bool charging: (dev?.state ?? 0) === 1
 
     visible: present
+
+    onClicked: {
+        if (PowerProfilesCtl.available)
+            root.open = !root.open;
+    }
 
     function glyph(p) {
         if (p >= 88)

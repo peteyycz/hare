@@ -2,6 +2,7 @@ singleton Theme 1.0 Theme.qml
 singleton Notifs 1.0 Notifs.qml
 singleton Networks 1.0 Networks.qml
 singleton Bluetooths 1.0 Bluetooths.qml
+singleton PowerProfilesCtl 1.0 PowerProfilesCtl.qml
 singleton GameMode 1.0 GameMode.qml
 Bar 1.0 Bar.qml
 BarButton 1.0 BarButton.qml
@@ -26,6 +27,7 @@ NetworkItem 1.0 NetworkItem.qml
 BluetoothButton 1.0 BluetoothButton.qml
 BluetoothPanel 1.0 BluetoothPanel.qml
 BluetoothItem 1.0 BluetoothItem.qml
+BatteryPanel 1.0 BatteryPanel.qml
 NotifToasts 1.0 NotifToasts.qml
 VolumeOsd 1.0 VolumeOsd.qml
 NotifCard 1.0 NotifCard.qml

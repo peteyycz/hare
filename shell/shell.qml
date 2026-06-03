@@ -2,9 +2,15 @@ import QtQuick
 import Quickshell
 
 ShellRoot {
-    // Realize the notification singleton at startup so the freedesktop server
-    // registers immediately (not lazily on first panel open).
-    Component.onCompleted: Notifs.list
+    // Realize a couple of singletons eagerly so their startup work happens
+    // before the user can interact with them: the notification server has to
+    // register on the bus (not lazily on first panel open), and PowerProfiles
+    // needs its `command -v powerprofilesctl` probe to finish before the
+    // Battery button can decide whether to open its popup.
+    Component.onCompleted: {
+        Notifs.list;
+        PowerProfilesCtl.available;
+    }
 
     Variants {
         model: Quickshell.screens
