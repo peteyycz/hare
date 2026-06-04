@@ -71,17 +71,12 @@ Rectangle {
     }
 
     // Body click → perform the default action (if any) but DON'T dismiss; only
-    // the × closes a card. A toast click is the exception: it counts as
-    // "handling" the notification, so it's removed from the center too.
+    // the × closes a card. Toasts still auto-dismiss on their own timer.
     MouseArea {
         anchors.fill: parent
         z: -1 // below the close/action hit areas
-        cursorShape: (root.toast || Notifs.hasDefault(root.notification)) ? Qt.PointingHandCursor : Qt.ArrowCursor
-        onClicked: {
-            Notifs.invokeDefault(root.notification);
-            if (root.toast)
-                Notifs.dismiss(root.notification);
-        }
+        cursorShape: Notifs.hasDefault(root.notification) ? Qt.PointingHandCursor : Qt.ArrowCursor
+        onClicked: Notifs.invokeDefault(root.notification)
     }
 
     RowLayout {
@@ -228,10 +223,7 @@ Rectangle {
                             anchors.fill: parent
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
-                            onClicked: {
-                                Notifs.invokeAction(actBtn.action);
-                                Notifs.dismiss(root.notification);
-                            }
+                            onClicked: Notifs.invokeAction(actBtn.action)
                         }
                     }
                 }

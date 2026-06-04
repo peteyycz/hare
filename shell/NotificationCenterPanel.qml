@@ -23,6 +23,23 @@ PanelWindow {
     // motivated the original deferral can't fire on a count-based model.
     readonly property var items: (Notifs.list?.values ?? []).slice().reverse()
 
+    // Items grouped by source app (preserves newest-first order). Each
+    // group is rendered as a single stacked NotifGroup; the group fans out
+    // on hover so individual notifications can be inspected/dismissed.
+    readonly property var groups: {
+        const arr = [];
+        const byKey = {};
+        for (const n of items) {
+            const key = (n?.appName ?? "") || "_unknown";
+            if (byKey[key] === undefined) {
+                byKey[key] = arr.length;
+                arr.push([]);
+            }
+            arr[byKey[key]].push(n);
+        }
+        return arr;
+    }
+
     // cap the scroll viewport so the window stays on-screen; the list scrolls
     readonly property int maxListHeight: (screen?.height ?? 1080) - Theme.barHeight - 80
 
@@ -252,7 +269,7 @@ PanelWindow {
                 spacing: Theme.gap
 
                 Repeater {
-                    // Integer-count model intentionally — not `panel.items`.
+                    // Integer-count model intentionally — not `panel.groups`.
                     // With a JS-array model Qt routes through
                     // VDMListDelegateDataType::createMissingProperties during
                     // delegate incubation and crashes on every notification
@@ -260,54 +277,19 @@ PanelWindow {
                     // and of any `Qt.callLater` deferral). An integer count
                     // model uses a completely different delegate-model code
                     // path and side-steps the bug. The delegate looks up its
-                    // backing notification via `panel.items[index]`.
-                    model: panel.items.length
+                    // backing group via `panel.groups[index]`.
+                    model: panel.groups.length
 
-                    delegate: NotifCard {
-                        id: card
-                        // Explicit `index` so the bindings below (and inside
-                        // the staggered animation) resolve reliably. Safe to
-                        // declare `required` because the integer-count model
-                        // doesn't go through VDMListDelegateDataType.
+                    delegate: NotifGroup {
+                        id: group
                         required property int index
-                        notification: panel.items[card.index]
-                        mode: "center"
+                        items: panel.groups[group.index]
+                        staggerIndex: group.index
 
-                        // Cards default to fully shown, so a rebuild (e.g. after a
-                        // dismiss) just reappears them in place. The staggered
-                        // fade+slide only runs when the panel pulses `animateIn`.
-                        transform: Translate {
-                            id: slide
-                            y: 0
-                        }
                         Connections {
                             target: panel
                             function onAnimateIn() {
-                                card.opacity = 0;
-                                slide.y = 8;
-                                enterAnim.restart();
-                            }
-                        }
-                        SequentialAnimation {
-                            id: enterAnim
-                            PauseAnimation {
-                                duration: card.index * 45
-                            }
-                            ParallelAnimation {
-                                NumberAnimation {
-                                    target: card
-                                    property: "opacity"
-                                    to: 1
-                                    duration: 200
-                                    easing.type: Easing.OutCubic
-                                }
-                                NumberAnimation {
-                                    target: slide
-                                    property: "y"
-                                    to: 0
-                                    duration: 220
-                                    easing.type: Easing.OutCubic
-                                }
+                                group.animateIn();
                             }
                         }
                     }

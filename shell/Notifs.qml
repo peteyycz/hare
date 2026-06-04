@@ -158,8 +158,7 @@ Singleton {
         root.toasts = [];
     }
     // Invoke the implicit "default" action (body-click) if the notification has
-    // one. Does NOT dismiss — the caller decides: a clicked toast is "handled"
-    // and removed from the center, a center card stays until its × is pressed.
+    // one. Does NOT dismiss — only the × button closes a card.
     function invokeDefault(n) {
         invokeAction((n?.actions ?? []).find(x => x.identifier === "default"));
     }

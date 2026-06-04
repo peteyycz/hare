@@ -31,6 +31,7 @@ BatteryPanel 1.0 BatteryPanel.qml
 NotifToasts 1.0 NotifToasts.qml
 VolumeOsd 1.0 VolumeOsd.qml
 NotifCard 1.0 NotifCard.qml
+NotifGroup 1.0 NotifGroup.qml
 SliderRow 1.0 SliderRow.qml
 Slider 1.0 Slider.qml
 MediaButton 1.0 MediaButton.qml
