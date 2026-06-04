@@ -57,11 +57,17 @@ PanelWindow {
         spacing: Theme.gap
 
         Repeater {
-            model: root.toasts
+            // Integer-count model, not `root.toasts` — see NotificationCenter
+            // Panel for the long explanation. Short version: a JS-array model
+            // on a Repeater routes through VDMListDelegateDataType which
+            // crashes the shell during delegate incubation on every
+            // notification. An integer count uses a different delegate-model
+            // path and bypasses the bug. The delegate reads its toast via
+            // `root.toasts[index]`.
+            model: root.toasts.length
 
             delegate: Item {
                 id: wrap
-                required property var modelData
 
                 Layout.fillWidth: true
                 implicitHeight: card.implicitHeight
@@ -96,7 +102,7 @@ PanelWindow {
                         right: parent.right
                         top: parent.top
                     }
-                    notification: wrap.modelData
+                    notification: root.toasts[index]
                     mode: "toast"
                 }
                 // auto-dismiss is scheduled per-toast in the Notifs singleton, so

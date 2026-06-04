@@ -264,15 +264,20 @@ PanelWindow {
                 spacing: Theme.gap
 
                 Repeater {
-                    model: panel.items
+                    // Integer-count model intentionally — not `panel.items`.
+                    // With a JS-array model Qt routes through
+                    // VDMListDelegateDataType::createMissingProperties during
+                    // delegate incubation and crashes on every notification
+                    // (Qt 6 bug; reproduces independent of `required` keywords
+                    // and of any `Qt.callLater` deferral). An integer count
+                    // model uses a completely different delegate-model code
+                    // path and side-steps the bug. The delegate looks up its
+                    // backing notification via `panel.items[index]`.
+                    model: panel.items.length
 
-                    // each card fades + slides in, staggered top-to-bottom, when
-                    // the center opens (reverts when it closes, so it replays)
                     delegate: NotifCard {
                         id: card
-                        required property var modelData
-                        required property int index
-                        notification: modelData
+                        notification: panel.items[index]
                         mode: "center"
 
                         // Cards default to fully shown, so a rebuild (e.g. after a
@@ -292,8 +297,10 @@ PanelWindow {
                         }
                         SequentialAnimation {
                             id: enterAnim
+                            // `index` resolves via the delegate's implicit
+                            // context — no `required property int index` needed
                             PauseAnimation {
-                                duration: card.index * 45
+                                duration: index * 45
                             }
                             ParallelAnimation {
                                 NumberAnimation {
