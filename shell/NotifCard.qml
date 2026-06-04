@@ -198,10 +198,16 @@ Rectangle {
                 visible: !root.toast && (root.notification?.actions?.length ?? 0) > 0
 
                 Repeater {
-                    model: root.notification?.actions ?? []
+                    // Integer-count model (matches the toast/center
+                    // Repeaters) — avoids the VDMListDelegateDataType
+                    // incubation crash on JS-array models.
+                    model: (root.notification?.actions?.length ?? 0)
 
                     delegate: Rectangle {
-                        required property var modelData
+                        id: actBtn
+                        required property int index
+                        readonly property var action: (root.notification?.actions ?? [])[actBtn.index] ?? null
+
                         implicitHeight: 26
                         implicitWidth: actText.implicitWidth + 22
                         radius: Theme.rSm
@@ -212,7 +218,7 @@ Rectangle {
                         Text {
                             id: actText
                             anchors.centerIn: parent
-                            text: parent.modelData.text
+                            text: actBtn.action?.text ?? ""
                             font.family: Theme.fonts.sans
                             font.pixelSize: 12
                             color: Theme.text
@@ -223,7 +229,7 @@ Rectangle {
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
                             onClicked: {
-                                parent.modelData.invoke();
+                                Notifs.invokeAction(actBtn.action);
                                 Notifs.dismiss(root.notification);
                             }
                         }

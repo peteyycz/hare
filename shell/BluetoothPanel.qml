@@ -137,14 +137,6 @@ PanelWindow {
                     color: Theme.text
                 }
 
-                Text {
-                    visible: Bluetooths.discovering
-                    text: "scanning…"
-                    font.family: Theme.fonts.sans
-                    font.pixelSize: 11
-                    color: Theme.textDim
-                }
-
                 Item {
                     Layout.fillWidth: true
                 }
@@ -176,20 +168,40 @@ PanelWindow {
                     }
                 }
 
-                // refresh / start-discovery button
+                // refresh / start-discovery button. While discovery is
+                // running the chip stays highlighted and the glyph spins —
+                // same convention as the Wi-Fi panel, so no "scanning…" label
+                // is needed in the header.
                 Rectangle {
                     implicitWidth: 28
                     implicitHeight: 28
                     radius: 14
-                    color: refreshMouse.containsMouse ? Theme.fillStrong : Theme.fill
+                    color: (refreshMouse.containsMouse || Bluetooths.discovering) ? Theme.fillStrong : Theme.fill
                     border.width: 1
                     border.color: Theme.hairline
 
+                    Behavior on color {
+                        ColorAnimation {
+                            duration: 140
+                        }
+                    }
+
                     Icon {
+                        id: refreshIcon
                         anchors.centerIn: parent
                         code: 0xf021 // nf-fa-refresh
                         size: 12
                         color: Theme.text
+
+                        RotationAnimation on rotation {
+                            from: 0
+                            to: 360
+                            duration: 900
+                            loops: Animation.Infinite
+                            running: Bluetooths.discovering
+                            onRunningChanged: if (!running)
+                                refreshIcon.rotation = 0
+                        }
                     }
 
                     MouseArea {

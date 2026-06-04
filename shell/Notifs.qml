@@ -44,16 +44,44 @@ Singleton {
 
         onNotification: function (n) {
             root.times[n.id] = Date.now();
-            // Defer model mutations off the DBus signal frame. Mutating
-            // `tracked` and `toasts` synchronously here triggered Repeater
-            // delegate rebuilds (center + toasts) mid-signal, which crashed
-            // Qt's delegate-model incubation (VDMListDelegateDataType::
-            // createMissingProperties). callLater serialises them to the
-            // next event-loop tick, after Notify() has returned.
+
+            // Mark `tracked` SYNCHRONOUSLY on the DBus frame. Quickshell
+            // destroys the underlying Notification very shortly after this
+            // handler returns, so deferring this write into a Qt.callLater
+            // (where `n` is already gone) silently no-ops — the server
+            // never adds the notification to `trackedNotifications`, and
+            // the center stays empty even for persistent notifications.
+            // The cascading-binding crash that originally motivated the
+            // deferral can't re-fire either: the Repeaters that consume
+            // `trackedNotifications` use integer-count models, so the
+            // VDMListDelegateDataType incubation path isn't taken.
+            n.tracked = !n.transient;
+
+            // Snapshot the display data so transient notifications (which
+            // are NOT tracked and therefore get reaped) still render with
+            // real content in the toast layer. The toast push is the only
+            // mutation we still defer — it isn't load-bearing for the
+            // notification's lifetime, only for the Repeater's model.
+            const snapshot = {
+                id: n.id,
+                summary: n.summary ?? "",
+                body: n.body ?? "",
+                appName: n.appName ?? "",
+                appIcon: n.appIcon ?? "",
+                image: n.image ?? "",
+                urgency: n.urgency,
+                transient: n.transient ?? false,
+                expireTimeout: n.expireTimeout ?? -1,
+                actions: (n.actions ?? []).map(a => ({
+                    identifier: a.identifier,
+                    text: a.text,
+                    _src: a
+                })),
+                _src: n
+            };
             Qt.callLater(() => {
-                n.tracked = !n.transient;
                 if (!root.dnd || n.urgency === NotificationUrgency.Critical)
-                    root.pushToast(n);
+                    root.pushToast(snapshot);
             });
         }
     }
@@ -95,12 +123,33 @@ Singleton {
         }
     }
     function dropToast(n) {
-        root.toasts = root.toasts.filter(t => t !== n);
+        // Match by `id`, NOT object identity. Snapshots are plain JS objects
+        // stored on a QML `var` property; the engine wraps them in a QVariant
+        // and the read-back reference doesn't `===` the original we stored —
+        // so `t !== n` was true for every entry and the toast never left.
+        if (!n)
+            return;
+        const id = n.id;
+        root.toasts = root.toasts.filter(t => t?.id !== id);
     }
+    // Toast entries are SNAPSHOTS (plain JS objects with `_src` pointing at
+    // the underlying Notification QObject); center entries are real
+    // Notification QObjects from `server.trackedNotifications`. Helpers
+    // below accept either — `_src ?? n` peels off the snapshot wrapper so
+    // dismiss / invoke land on the live server-side object whenever it's
+    // still around.
+    function _live(n) {
+        return n?._src ?? n;
+    }
+
     function dismiss(n) {
         dropToast(n);
-        if (n)
-            n.dismiss();
+        const src = _live(n);
+        if (src && typeof src.dismiss === "function") {
+            try {
+                src.dismiss();
+            } catch (e) {}
+        }
     }
     function clearAll() {
         const arr = (root.list?.values ?? []).slice();  // copy: dismiss mutates the model
@@ -112,9 +161,19 @@ Singleton {
     // one. Does NOT dismiss — the caller decides: a clicked toast is "handled"
     // and removed from the center, a center card stays until its × is pressed.
     function invokeDefault(n) {
-        const a = (n?.actions ?? []).find(x => x.identifier === "default");
-        if (a)
-            a.invoke();
+        invokeAction((n?.actions ?? []).find(x => x.identifier === "default"));
+    }
+    // Invoke a single action (used by the action chips in NotifCard). Accepts
+    // both snapshot action wrappers and live NotificationAction QObjects.
+    function invokeAction(a) {
+        if (!a)
+            return;
+        const src = a._src ?? a;
+        if (typeof src.invoke === "function") {
+            try {
+                src.invoke();
+            } catch (e) {}
+        }
     }
     // does this notification carry an implicit body-click action?
     function hasDefault(n) {

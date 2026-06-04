@@ -16,24 +16,12 @@ PanelWindow {
     // the whole stagger.
     signal animateIn
 
-    // Local snapshot of the notification list, updated via Qt.callLater on
-    // every server-side change. Repeater reads from THIS rather than from
-    // `Notifs.list?.values` directly so that the Repeater.setModel reassignment
-    // doesn't happen in the same event-loop tick as the `n.tracked = ...`
-    // write that triggered the cascade — that synchronous chain is what
-    // blows up VDMListDelegateDataType::createMissingProperties during
-    // delegate incubation. Decoupling them gives Qt a clean tick to incubate.
-    property var items: []
-    Connections {
-        target: Notifs.list
-        function onValuesChanged() {
-            Qt.callLater(panel._refreshItems);
-        }
-    }
-    function _refreshItems() {
-        panel.items = (Notifs.list?.values ?? []).slice().reverse();
-    }
-    Component.onCompleted: panel._refreshItems()
+    // Live, reversed view of the server's tracked notifications. Newest
+    // first. Reading via a binding (rather than a deferred local copy +
+    // Connections) is fine now that the Repeater below uses an integer-
+    // count model — the VDMListDelegateDataType incubation crash that
+    // motivated the original deferral can't fire on a count-based model.
+    readonly property var items: (Notifs.list?.values ?? []).slice().reverse()
 
     // cap the scroll viewport so the window stays on-screen; the list scrolls
     readonly property int maxListHeight: (screen?.height ?? 1080) - Theme.barHeight - 80
@@ -277,7 +265,12 @@ PanelWindow {
 
                     delegate: NotifCard {
                         id: card
-                        notification: panel.items[index]
+                        // Explicit `index` so the bindings below (and inside
+                        // the staggered animation) resolve reliably. Safe to
+                        // declare `required` because the integer-count model
+                        // doesn't go through VDMListDelegateDataType.
+                        required property int index
+                        notification: panel.items[card.index]
                         mode: "center"
 
                         // Cards default to fully shown, so a rebuild (e.g. after a
@@ -297,10 +290,8 @@ PanelWindow {
                         }
                         SequentialAnimation {
                             id: enterAnim
-                            // `index` resolves via the delegate's implicit
-                            // context — no `required property int index` needed
                             PauseAnimation {
-                                duration: index * 45
+                                duration: card.index * 45
                             }
                             ParallelAnimation {
                                 NumberAnimation {

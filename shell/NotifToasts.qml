@@ -10,23 +10,11 @@ import Quickshell.Wayland
 PanelWindow {
     id: root
 
-    // Local snapshot of the toast queue, refreshed via Qt.callLater whenever
-    // Notifs.toasts changes. The Repeater reads this — not Notifs.toasts —
-    // so the model reassignment lands in a fresh event-loop tick, away from
-    // the synchronous binding chain that triggered it. Without this the
-    // delegate incubation crashes inside VDMListDelegateDataType (same Qt
-    // bug the Notifs.qml Qt.callLater partially worked around).
-    property var toasts: []
-    Connections {
-        target: Notifs
-        function onToastsChanged() {
-            Qt.callLater(root._refreshToasts);
-        }
-    }
-    function _refreshToasts() {
-        root.toasts = Notifs.toasts.slice();
-    }
-    Component.onCompleted: root._refreshToasts()
+    // Read the toast queue straight from the singleton — the local-copy +
+    // Connections + Qt.callLater dance is unnecessary now that the Repeater
+    // below uses an integer-count model (the VDM incubation crash that
+    // originally motivated it can't fire on a count-based model).
+    readonly property var toasts: Notifs.toasts
 
     visible: (toasts.length > 0) && !Notifs.panelOpen
     color: "transparent"
@@ -68,6 +56,14 @@ PanelWindow {
 
             delegate: Item {
                 id: wrap
+                // With the integer-count model the delegate ONLY gets an
+                // `index` context property — no `modelData`. We still need
+                // to declare it `required` here: implicit context-property
+                // lookup is unreliable from nested children (NotifCard),
+                // and without this declaration the binding below evaluates
+                // `root.toasts[undefined]` → notification is null, and the
+                // card falls back to its placeholder content.
+                required property int index
 
                 Layout.fillWidth: true
                 implicitHeight: card.implicitHeight
@@ -102,7 +98,7 @@ PanelWindow {
                         right: parent.right
                         top: parent.top
                     }
-                    notification: root.toasts[index]
+                    notification: root.toasts[wrap.index]
                     mode: "toast"
                 }
                 // auto-dismiss is scheduled per-toast in the Notifs singleton, so
