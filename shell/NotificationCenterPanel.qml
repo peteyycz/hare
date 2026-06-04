@@ -16,7 +16,25 @@ PanelWindow {
     // the whole stagger.
     signal animateIn
 
-    readonly property var items: Notifs.list?.values ?? []
+    // Local snapshot of the notification list, updated via Qt.callLater on
+    // every server-side change. Repeater reads from THIS rather than from
+    // `Notifs.list?.values` directly so that the Repeater.setModel reassignment
+    // doesn't happen in the same event-loop tick as the `n.tracked = ...`
+    // write that triggered the cascade — that synchronous chain is what
+    // blows up VDMListDelegateDataType::createMissingProperties during
+    // delegate incubation. Decoupling them gives Qt a clean tick to incubate.
+    property var items: []
+    Connections {
+        target: Notifs.list
+        function onValuesChanged() {
+            Qt.callLater(panel._refreshItems);
+        }
+    }
+    function _refreshItems() {
+        panel.items = (Notifs.list?.values ?? []).slice().reverse();
+    }
+    Component.onCompleted: panel._refreshItems()
+
     // cap the scroll viewport so the window stays on-screen; the list scrolls
     readonly property int maxListHeight: (screen?.height ?? 1080) - Theme.barHeight - 80
 
@@ -246,7 +264,7 @@ PanelWindow {
                 spacing: Theme.gap
 
                 Repeater {
-                    model: panel.items.slice().reverse()
+                    model: panel.items
 
                     // each card fades + slides in, staggered top-to-bottom, when
                     // the center opens (reverts when it closes, so it replays)

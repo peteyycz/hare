@@ -10,7 +10,25 @@ import Quickshell.Wayland
 PanelWindow {
     id: root
 
-    visible: (Notifs.toasts.length > 0) && !Notifs.panelOpen
+    // Local snapshot of the toast queue, refreshed via Qt.callLater whenever
+    // Notifs.toasts changes. The Repeater reads this — not Notifs.toasts —
+    // so the model reassignment lands in a fresh event-loop tick, away from
+    // the synchronous binding chain that triggered it. Without this the
+    // delegate incubation crashes inside VDMListDelegateDataType (same Qt
+    // bug the Notifs.qml Qt.callLater partially worked around).
+    property var toasts: []
+    Connections {
+        target: Notifs
+        function onToastsChanged() {
+            Qt.callLater(root._refreshToasts);
+        }
+    }
+    function _refreshToasts() {
+        root.toasts = Notifs.toasts.slice();
+    }
+    Component.onCompleted: root._refreshToasts()
+
+    visible: (toasts.length > 0) && !Notifs.panelOpen
     color: "transparent"
 
     WlrLayershell.namespace: "hare"
@@ -39,7 +57,7 @@ PanelWindow {
         spacing: Theme.gap
 
         Repeater {
-            model: Notifs.toasts
+            model: root.toasts
 
             delegate: Item {
                 id: wrap
