@@ -4,21 +4,30 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 
-// power-profiles-daemon control via `powerprofilesctl`. The probe at startup
-// (`command -v powerprofilesctl`) flips `available` — consumers (the battery
-// panel) gate themselves on this so we don't pop up an empty chooser on
-// systems where ppd isn't installed.
+// =============================================================================
+// PowerProfileService — public contract
+// =============================================================================
+// Properties (read-only):
+//   available : bool   — powerprofilesctl is installed
+//   active    : string — current profile name (e.g. "performance")
+//   profiles  : list<string> — profiles the daemon advertises (e.g.
+//                              ["performance", "balanced", "power-saver"])
+// Methods:
+//   set(profile: string)
+//   has(profile: string) : bool
+// Signals: none.
 //
-// Named `PowerProfileService`, not `PowerProfiles`, because
-// `Quickshell.Services.UPower` already exports its own `PowerProfiles`
-// singleton (with a totally different shape — `profile` enum,
-// `hasPerformanceProfile`, etc.). `BatteryButton.qml` imports UPower for
-// `displayDevice`, so an unqualified `PowerProfiles` there resolves to
-// Quickshell's type and our `available` reads back as undefined.
+// Backend: shells out to `powerprofilesctl`. State is kept fresh by re-running
+// `get` after every `set` and on a slow background timer; `list` only runs
+// once unless the daemon is restarted with a different profile set. A future
+// native impl could call power-profiles-daemon over D-Bus directly; it must
+// expose the same `available` / `active` / `profiles` + `set()` / `has()`.
 //
-// State is kept fresh by re-running `get` after every `set` and on a slow
-// background timer; `list` only needs to run once unless the daemon is
-// restarted with a different profile set.
+// Named `PowerProfileService` (not `PowerProfiles`) because
+// `Quickshell.Services.UPower` already exports a `PowerProfiles` singleton
+// with a different shape; `BatteryButton.qml` imports UPower for
+// `displayDevice`, so an unqualified `PowerProfiles` there would resolve to
+// Quickshell's type and our `available` would read back as undefined.
 Singleton {
     id: root
 

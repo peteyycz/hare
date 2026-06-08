@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Services.Pipewire
 import Quickshell.Services.Mpris
@@ -45,19 +44,6 @@ PanelWindow {
         const ps = Mpris.players?.values ?? [];
         return ps.find(p => p.isPlaying) ?? ps[0] ?? null;
     }
-    property real brightness: 0.72   // cosmetic default; applied via brightnessctl
-    // brightnessctl only controls an internal backlight (laptops); desktops /
-    // external-only setups have none, so the Display slider is hidden there.
-    property bool hasBacklight: false
-
-    Process {
-        id: backlightQuery
-        running: true
-        command: ["sh", "-c", "ls -1 /sys/class/backlight 2>/dev/null | head -n1"]
-        stdout: StdioCollector {
-            onStreamFinished: panel.hasBacklight = text.trim().length > 0
-        }
-    }
 
     PwObjectTracker {
         objects: [panel.sink]
@@ -73,57 +59,12 @@ PanelWindow {
         onTriggered: panel.mediaPos = panel.player?.position ?? 0
     }
 
-    Process {
-        id: brightnessProc
-    }
-    function applyBrightness(v) {
-        panel.brightness = v;
-        brightnessProc.command = ["sh", "-c", "brightnessctl set " + Math.round(v * 100) + "% || true"];
-        brightnessProc.running = true;
-    }
-
     function fmtTime(secs) {
         if (!secs || secs < 0 || !isFinite(secs))
             return "0:00";
         const m = Math.floor(secs / 60);
         const s = Math.floor(secs % 60);
         return m + ":" + (s < 10 ? "0" : "") + s;
-    }
-
-    // ============================================================
-    //  Toggle backends
-    // ============================================================
-
-    // ---- Focus / Do-Not-Disturb (drives the notification server's `dnd`) ----
-    // State lives in the Notifs singleton so it's shared across screens and the
-    // server can read it; the toggle below is just a view onto it.
-
-    // ---- Night Light (hyprsunset daemon, alive while the toggle is on) ----
-    Process {
-        id: nightProc
-        command: ["hyprsunset", "-t", "3500"]
-    }
-
-    // ---- Caffeine (logind idle/sleep inhibitor, held while on) ----
-    Process {
-        id: caffeineProc
-        command: ["systemd-inhibit", "--what=idle:sleep", "--who=hare", "--why=Caffeine", "sleep", "infinity"]
-    }
-
-    // ---- Screen recorder (wf-recorder; SIGINT to finalize cleanly) ----
-    property string recPath: ""
-    Process {
-        id: recProc
-    }
-    function toggleRecording() {
-        if (recProc.running) {
-            recProc.signal(2); // SIGINT — lets wf-recorder flush the file
-            return;
-        }
-        const dir = (Quickshell.env("HOME") ?? "") + "/Videos";
-        recPath = dir + "/hare-" + Qt.formatDateTime(new Date(), "yyyyMMdd-HHmmss") + ".mp4";
-        recProc.command = ["sh", "-c", "mkdir -p \"$1\"; exec wf-recorder -f \"$2\" -c libx264 -p preset=fast -p crf=18 --pixel-format yuv420p", "sh", dir, recPath];
-        recProc.running = true;
     }
 
     // ---- glass surface ----
@@ -161,34 +102,34 @@ PanelWindow {
                 Toggle {
                     icon: 0xf0eb // night light (lightbulb)
                     name: "Night Light"
-                    on: nightProc.running
-                    status: nightProc.running ? "3500K" : "Off"
-                    onToggled: nightProc.running = !nightProc.running
+                    on: NightLightService.active
+                    status: NightLightService.active ? (NightLightService.temperature + "K") : "Off"
+                    onToggled: NightLightService.toggle()
                 }
                 Toggle {
                     icon: 0xf0f4 // caffeine (coffee)
                     name: "Caffeine"
-                    on: caffeineProc.running
-                    status: caffeineProc.running ? "Awake" : "Off"
-                    onToggled: caffeineProc.running = !caffeineProc.running
+                    on: CaffeineService.active
+                    status: CaffeineService.active ? "Awake" : "Off"
+                    onToggled: CaffeineService.toggle()
                 }
                 Toggle {
                     icon: 0xf03d // screen recorder (video camera)
                     name: "Record"
-                    on: recProc.running
-                    status: recProc.running ? "Recording" : "Off"
-                    onToggled: panel.toggleRecording()
+                    on: ScreenRecorderService.recording
+                    status: ScreenRecorderService.recording ? "Recording" : "Off"
+                    onToggled: ScreenRecorderService.toggle()
                 }
             }
 
             // ---- brightness (only when an internal backlight exists) ----
             SliderRow {
                 Layout.fillWidth: true
-                visible: panel.hasBacklight
+                visible: BrightnessService.available
                 heading: "Display"
                 glyph: 0xf185 // sun
-                value: panel.brightness
-                onMoved: v => panel.applyBrightness(v)
+                value: BrightnessService.value
+                onMoved: v => BrightnessService.set(v)
             }
 
             // ---- volume ----

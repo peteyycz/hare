@@ -3,3 +3,7 @@ singleton NetworkService 1.0 NetworkService.qml
 singleton BluetoothService 1.0 BluetoothService.qml
 singleton PowerProfileService 1.0 PowerProfileService.qml
 singleton GameModeService 1.0 GameModeService.qml
+singleton BrightnessService 1.0 BrightnessService.qml
+singleton NightLightService 1.0 NightLightService.qml
+singleton CaffeineService 1.0 CaffeineService.qml
+singleton ScreenRecorderService 1.0 ScreenRecorderService.qml

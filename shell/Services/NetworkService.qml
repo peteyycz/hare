@@ -4,13 +4,39 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 
-// Wi-Fi / Ethernet / VPN management via NetworkManager (nmcli). Quickshell
-// 0.2.x has no native network service, so the singleton shells out: periodic
-// `device wifi list` keeps `networks` / `activeSsid` fresh, a `device status`
-// poll tracks the first managed ethernet link, and `connection show` enumerates
-// saved VPN profiles plus active-connection state. User-driven entry points
-// (`refresh()`, `connect()`, `toggleEthernet()`, `connectVpn()`, …) layer on
-// top of the same polling.
+// =============================================================================
+// NetworkService — public contract
+// =============================================================================
+// Wi-Fi (read-only):
+//   networks       : list of { ssid, signal, security, active, known }
+//   activeSsid     : string
+//   scanning       : bool
+//   wifiEnabled    : bool
+//   connectingSsid : string — non-empty while a connect() is in flight
+//   lastError      : string — surfaced near the wifi list
+// Wi-Fi methods:
+//   refresh(), toggleWifi(), connect(ssid, password), disconnect(ssid)
+//
+// Ethernet (read-only):
+//   ethernetDevice     : string — empty when no managed wired link exists
+//   ethernetConnection : string — name of the active connection, if any
+//   ethernetState      : "connected" | "unavailable" | …
+//   ethernetBusy       : bool
+//   ethernetError      : string
+// Ethernet methods:
+//   toggleEthernet()
+//
+// VPN (read-only):
+//   vpns          : list of { name, type, active }
+//   connectingVpn : string
+//   vpnError      : string
+// VPN methods:
+//   connectVpn(name), disconnectVpn(name)
+//
+// Signals: none (consumers bind to the reactive properties).
+//
+// Backend: shells out to `nmcli`. A future native impl could call into
+// NetworkManager over D-Bus; it must expose the same properties and methods.
 Singleton {
     id: root
 

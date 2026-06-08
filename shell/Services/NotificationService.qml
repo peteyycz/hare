@@ -4,11 +4,28 @@ import QtQuick
 import Quickshell
 import Quickshell.Services.Notifications
 
-// Single freedesktop notification server for the whole shell, plus the bit of
-// state the UI needs on top of it: the persistent list (the center), the
-// transient toast queue, per-notification arrival times (the spec gives us no
-// timestamp), and helpers for dismiss / actions. Per-screen panels and the
-// toast layer are thin views over this.
+// =============================================================================
+// NotificationService — public contract
+// =============================================================================
+// Properties:
+//   list      : NotificationServer model — persistent notifications (the center)
+//   toasts    : list — currently visible transient toasts
+//   times     : map<id, Date> — arrival times for relative-age labels
+//   dnd       : bool (read/write) — do-not-disturb / Focus
+//   panelOpen : bool (read/write) — true while the center is open;
+//               suppresses toasts
+// Methods:
+//   clearAll()
+//   dismiss(notification)
+//   hasDefault(notification) : bool
+//   invokeDefault(notification)
+//   invokeAction(action)
+//   accent(notification)     : color
+//   age(notification)         : string
+// Signals: none (consumers bind to the reactive properties).
+//
+// Backend: hosts the freedesktop notification server for the whole shell.
+// Per-screen panels and the toast layer are thin views over this singleton.
 //
 // NOTE: only one process may own org.freedesktop.Notifications — a running
 // mako/dunst will prevent this server from registering.

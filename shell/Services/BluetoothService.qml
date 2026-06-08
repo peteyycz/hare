@@ -5,15 +5,29 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Bluetooth
 
-// Thin wrapper over Quickshell.Bluetooth — exposes the default adapter and a
-// sorted device list (connected > paired > available, then alphabetical), and
-// drives the actions the BluetoothPanel needs: toggle the adapter, start a
-// timed discovery scan, connect / disconnect / pair via bluetoothctl.
+// =============================================================================
+// BluetoothService — public contract
+// =============================================================================
+// Properties (read-only):
+//   adapter          : BluetoothAdapter? — Quickshell.Bluetooth default adapter
+//   enabled          : bool
+//   discovering      : bool
+//   devices          : list<BluetoothDevice>
+//   connectedDevices : list<BluetoothDevice>
+//   sortedDevices    : list<BluetoothDevice> (connected > paired > available,
+//                                              then alphabetical)
+//   busyAddress      : string — non-empty while a connect/disconnect is
+//                               in flight on that device's address
+//   lastError        : string
+// Methods:
+//   refresh(), toggleAdapter(),
+//   connect(device), disconnect(device), pair(device)
+// Signals: none (consumers bind to reactive properties).
 //
-// The state-reading half is direct property access on the Quickshell objects
-// (`adapter.enabled`, `device.connected`, …); the state-writing half shells
-// out to bluetoothctl so we don't depend on which methods Quickshell exposes
-// on BluetoothDevice and we stay consistent with the Networks/nmcli split.
+// Backend: reads via Quickshell.Bluetooth, writes via `bluetoothctl`. The
+// shell-out for writes avoids depending on which methods Quickshell exposes
+// on BluetoothDevice and stays consistent with NetworkService's nmcli split.
+// A future native impl could call BlueZ over D-Bus directly.
 Singleton {
     id: root
 
