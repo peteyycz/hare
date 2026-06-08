@@ -31,19 +31,10 @@ Rectangle {
         anchors.rightMargin: 14
         spacing: 11
 
-        Rectangle {
-            Layout.alignment: Qt.AlignVCenter
-            implicitWidth: 36
-            implicitHeight: 36
-            radius: 18
-            color: item.vpn.active ? Theme.rgba("ffffff", 0.22) : Theme.fillStrong
-
-            Icon {
-                anchors.centerIn: parent
-                code: 0xf084 // nf-fa-key
-                size: 16
-                color: item.vpn.active ? Theme.accentInk : Theme.text
-            }
+        IconRing {
+            code: 0xf084 // nf-fa-key
+            iconSize: 16
+            selected: item.vpn.active
         }
 
         ColumnLayout {

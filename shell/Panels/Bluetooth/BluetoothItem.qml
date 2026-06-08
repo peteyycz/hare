@@ -102,19 +102,9 @@ Rectangle {
                 anchors.rightMargin: 14
                 spacing: 11
 
-                Rectangle {
-                    Layout.alignment: Qt.AlignVCenter
-                    implicitWidth: 36
-                    implicitHeight: 36
-                    radius: 18
-                    color: item.dev?.connected ? Theme.rgba("ffffff", 0.22) : Theme.fillStrong
-
-                    Icon {
-                        anchors.centerIn: parent
-                        code: item.deviceIcon()
-                        size: 17
-                        color: item.dev?.connected ? Theme.accentInk : Theme.text
-                    }
+                IconRing {
+                    code: item.deviceIcon()
+                    selected: item.dev?.connected ?? false
                 }
 
                 ColumnLayout {
@@ -167,52 +157,17 @@ Rectangle {
                 Layout.fillWidth: true
             }
 
-            Rectangle {
-                id: actionBtn
-                implicitHeight: 32
-                implicitWidth: actionText.implicitWidth + 26
-                radius: Theme.rSm
-                color: {
-                    if (item.dev?.connected)
-                        return actionMouse.containsMouse ? Theme.rgba("ffffff", 0.32) : Theme.rgba("ffffff", 0.18);
-                    return actionMouse.containsMouse ? Theme.accent : Theme.fillStrong;
-                }
-                border.width: 1
-                border.color: item.dev?.connected ? "transparent" : (actionMouse.containsMouse ? "transparent" : Theme.hairline)
-
-                Behavior on color {
-                    ColorAnimation {
-                        duration: 140
-                    }
-                }
-
-                function go() {
+            ActionButton {
+                text: item.actionLabel()
+                selected: item.dev?.connected ?? false
+                onClicked: {
                     if (!item.dev)
                         return;
-                    if (item.dev.connected) {
+                    if (item.dev.connected)
                         BluetoothService.disconnect(item.dev);
-                    } else {
+                    else
                         BluetoothService.connect(item.dev);
-                    }
                     item.toggle();
-                }
-
-                Text {
-                    id: actionText
-                    anchors.centerIn: parent
-                    text: item.actionLabel()
-                    font.family: Theme.fonts.sans
-                    font.pixelSize: 12
-                    font.weight: Font.Medium
-                    color: item.dev?.connected ? Theme.accentInk : (actionMouse.containsMouse ? Theme.accentInk : Theme.text)
-                }
-
-                MouseArea {
-                    id: actionMouse
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: actionBtn.go()
                 }
             }
         }

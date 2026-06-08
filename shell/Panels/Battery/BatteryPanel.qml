@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
-import Quickshell.Widgets
 import "../../Theme"
 import "../../Common"
 import "../../Services"
@@ -41,40 +40,9 @@ PanelWindow {
     implicitWidth: 280
     implicitHeight: col.implicitHeight + Theme.pad * 2
 
-    ClippingRectangle {
-        id: glass
+    GlassSurface {
         anchors.fill: parent
-        radius: Theme.rLg
-        color: Theme.bg
-
-        opacity: 0
-        transform: Scale {
-            id: popScale
-            origin.x: glass.width
-            origin.y: 0
-            xScale: 0.97
-            yScale: 0.97
-        }
-        states: State {
-            name: "shown"
-            when: panel.visible
-            PropertyChanges {
-                target: glass
-                opacity: 1
-            }
-            PropertyChanges {
-                target: popScale
-                xScale: 1
-                yScale: 1
-            }
-        }
-        transitions: Transition {
-            NumberAnimation {
-                properties: "opacity,xScale,yScale"
-                duration: 220
-                easing.type: Easing.OutCubic
-            }
-        }
+        shown: panel.visible
 
         ColumnLayout {
             id: col

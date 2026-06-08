@@ -1,4 +1,7 @@
+ActionButton 1.0 ActionButton.qml
+GlassSurface 1.0 GlassSurface.qml
 Icon 1.0 Icon.qml
+IconRing 1.0 IconRing.qml
 Separator 1.0 Separator.qml
 Slider 1.0 Slider.qml
 SliderRow 1.0 SliderRow.qml

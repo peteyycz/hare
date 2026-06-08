@@ -34,19 +34,9 @@ Rectangle {
         anchors.rightMargin: 14
         spacing: 11
 
-        Rectangle {
-            Layout.alignment: Qt.AlignVCenter
-            implicitWidth: 36
-            implicitHeight: 36
-            radius: 18
-            color: root.on ? Theme.rgba("ffffff", 0.22) : Theme.fillStrong
-
-            Icon {
-                anchors.centerIn: parent
-                code: root.icon
-                size: 17
-                color: root.on ? Theme.accentInk : Theme.text
-            }
+        IconRing {
+            code: root.icon
+            selected: root.on
         }
 
         ColumnLayout {

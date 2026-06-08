@@ -66,20 +66,10 @@ Rectangle {
                 spacing: 11
 
                 // circular icon ring — wifi glyph dimmed by signal strength
-                Rectangle {
-                    Layout.alignment: Qt.AlignVCenter
-                    implicitWidth: 36
-                    implicitHeight: 36
-                    radius: 18
-                    color: item.net.active ? Theme.rgba("ffffff", 0.22) : Theme.fillStrong
-
-                    Icon {
-                        anchors.centerIn: parent
-                        code: 0xf1eb // nf-fa-wifi
-                        size: 17
-                        color: item.net.active ? Theme.accentInk : Theme.text
-                        opacity: item.net.active ? 1 : (0.5 + (Math.min(100, item.net.signal) / 100) * 0.5)
-                    }
+                IconRing {
+                    code: 0xf1eb // nf-fa-wifi
+                    selected: item.net.active
+                    iconOpacity: item.net.active ? 1 : (0.5 + (Math.min(100, item.net.signal) / 100) * 0.5)
                 }
 
                 ColumnLayout {
@@ -182,51 +172,17 @@ Rectangle {
 
             // Action button — Disconnect on the active row (styled against the
             // accent fill), Connect everywhere else.
-            Rectangle {
-                id: actionBtn
-                implicitHeight: 32
-                implicitWidth: actionText.implicitWidth + 26
-                radius: Theme.rSm
-                color: {
+            ActionButton {
+                text: item.net.active ? "Disconnect" : "Connect"
+                selected: item.net.active
+                busy: NetworkService.connectingSsid === item.net.ssid
+                onClicked: {
                     if (item.net.active)
-                        return actionMouse.containsMouse ? Theme.rgba("ffffff", 0.32) : Theme.rgba("ffffff", 0.18);
-                    return actionMouse.containsMouse ? Theme.accent : Theme.fillStrong;
-                }
-                border.width: 1
-                border.color: item.net.active ? "transparent" : (actionMouse.containsMouse ? "transparent" : Theme.hairline)
-
-                Behavior on color {
-                    ColorAnimation {
-                        duration: 140
-                    }
-                }
-
-                function go() {
-                    if (item.net.active) {
                         NetworkService.disconnect(item.net.ssid);
-                    } else {
+                    else
                         NetworkService.connect(item.net.ssid, pwInput.text);
-                    }
                     pwInput.text = "";
                     item.toggle();
-                }
-
-                Text {
-                    id: actionText
-                    anchors.centerIn: parent
-                    text: NetworkService.connectingSsid === item.net.ssid ? "…" : (item.net.active ? "Disconnect" : "Connect")
-                    font.family: Theme.fonts.sans
-                    font.pixelSize: 12
-                    font.weight: Font.Medium
-                    color: item.net.active ? Theme.accentInk : (actionMouse.containsMouse ? Theme.accentInk : Theme.text)
-                }
-
-                MouseArea {
-                    id: actionMouse
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: actionBtn.go()
                 }
             }
         }

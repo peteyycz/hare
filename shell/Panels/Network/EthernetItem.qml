@@ -49,20 +49,10 @@ ColumnLayout {
             anchors.rightMargin: 14
             spacing: 11
 
-            Rectangle {
-                Layout.alignment: Qt.AlignVCenter
-                implicitWidth: 36
-                implicitHeight: 36
-                radius: 18
-                color: row.connected ? Theme.rgba("ffffff", 0.22) : Theme.fillStrong
-
-                Icon {
-                    anchors.centerIn: parent
-                    code: 0xf6ff // nf-fa-network_wired
-                    size: 17
-                    color: row.connected ? Theme.accentInk : Theme.text
-                    opacity: row.unavailable ? 0.5 : 1
-                }
+            IconRing {
+                code: 0xf6ff // nf-fa-network_wired
+                selected: row.connected
+                iconOpacity: row.unavailable ? 0.5 : 1
             }
 
             ColumnLayout {
@@ -101,45 +91,14 @@ ColumnLayout {
             // Action button — Disconnect on the active row (over accent fill),
             // Connect otherwise. Hidden when the link is unavailable (no
             // carrier) since there is nothing meaningful to do.
-            Rectangle {
-                id: actionBtn
+            ActionButton {
                 Layout.alignment: Qt.AlignVCenter
                 visible: !row.unavailable
-                implicitHeight: 32
-                implicitWidth: actionText.implicitWidth + 26
-                radius: Theme.rSm
-                color: {
-                    if (row.connected)
-                        return actionMouse.containsMouse ? Theme.rgba("ffffff", 0.32) : Theme.rgba("ffffff", 0.18);
-                    return actionMouse.containsMouse ? Theme.accent : Theme.fillStrong;
-                }
-                border.width: 1
-                border.color: row.connected ? "transparent" : (actionMouse.containsMouse ? "transparent" : Theme.hairline)
-
-                Behavior on color {
-                    ColorAnimation {
-                        duration: 140
-                    }
-                }
-
-                Text {
-                    id: actionText
-                    anchors.centerIn: parent
-                    text: NetworkService.ethernetBusy ? "…" : (row.connected ? "Disconnect" : "Connect")
-                    font.family: Theme.fonts.sans
-                    font.pixelSize: 12
-                    font.weight: Font.Medium
-                    color: row.connected ? Theme.accentInk : (actionMouse.containsMouse ? Theme.accentInk : Theme.text)
-                }
-
-                MouseArea {
-                    id: actionMouse
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    enabled: !NetworkService.ethernetBusy
-                    onClicked: NetworkService.toggleEthernet()
-                }
+                text: row.connected ? "Disconnect" : "Connect"
+                selected: row.connected
+                busy: NetworkService.ethernetBusy
+                enabled: !NetworkService.ethernetBusy
+                onClicked: NetworkService.toggleEthernet()
             }
         }
     }

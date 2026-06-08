@@ -3,7 +3,6 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
-import Quickshell.Widgets
 import Quickshell.Services.Pipewire
 import Quickshell.Services.Mpris
 import "../../Theme"
@@ -128,45 +127,9 @@ PanelWindow {
     }
 
     // ---- glass surface ----
-    // ClippingRectangle (not a plain Rectangle + clip) so children are clipped
-    // to the *rounded* shape — a plain `clip` only clips to the square bounds,
-    // which left glitchy nubs where the sheen overran the rounded corners.
-    ClippingRectangle {
-        id: glass
+    GlassSurface {
         anchors.fill: parent
-        radius: Theme.rLg
-        color: Theme.bg
-        // borderless glass, like the bar
-
-        // entrance animation (pop-in)
-        opacity: 0
-        transform: Scale {
-            id: popScale
-            origin.x: glass.width
-            origin.y: 0
-            xScale: 0.97
-            yScale: 0.97
-        }
-        states: State {
-            name: "shown"
-            when: panel.visible
-            PropertyChanges {
-                target: glass
-                opacity: 1
-            }
-            PropertyChanges {
-                target: popScale
-                xScale: 1
-                yScale: 1
-            }
-        }
-        transitions: Transition {
-            NumberAnimation {
-                properties: "opacity,xScale,yScale"
-                duration: 220
-                easing.type: Easing.OutCubic
-            }
-        }
+        shown: panel.visible
 
         ColumnLayout {
             id: col
