@@ -54,7 +54,7 @@ Rectangle {
         anchors.fill: parent
         spacing: 0
 
-        // ---- header row (62px tall, click target — same shape as CcToggle) ----
+        // ---- header row (62px tall, click target — same shape as Toggle) ----
         Item {
             Layout.fillWidth: true
             Layout.preferredHeight: 62

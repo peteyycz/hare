@@ -7,7 +7,7 @@ import "../../Common"
 import "../../Services"
 
 // Network panel — a layer-shell popup mirroring ControlCenterPanel. Three
-// stacked blocks, all driven by the Networks singleton:
+// stacked blocks, all driven by NetworkService:
 //   1. Ethernet — only visible when a managed wired link exists.
 //   2. Wi-Fi    — visible networks, radio toggle, rescan, inline password.
 //   3. VPN      — saved VPN/WireGuard profiles; hidden when none configured.

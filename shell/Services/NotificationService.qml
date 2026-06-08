@@ -179,7 +179,7 @@ Singleton {
     function invokeDefault(n) {
         invokeAction((n?.actions ?? []).find(x => x.identifier === "default"));
     }
-    // Invoke a single action (used by the action chips in NotifCard). Accepts
+    // Invoke a single action (used by the action chips in NotificationCard). Accepts
     // both snapshot action wrappers and live NotificationAction QObjects.
     function invokeAction(a) {
         if (!a)

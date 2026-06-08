@@ -61,7 +61,7 @@ PanelWindow {
                 // With the integer-count model the delegate ONLY gets an
                 // `index` context property — no `modelData`. We still need
                 // to declare it `required` here: implicit context-property
-                // lookup is unreliable from nested children (NotifCard),
+                // lookup is unreliable from nested children (NotificationCard),
                 // and without this declaration the binding below evaluates
                 // `root.toasts[undefined]` → notification is null, and the
                 // card falls back to its placeholder content.

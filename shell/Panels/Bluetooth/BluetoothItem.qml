@@ -91,7 +91,7 @@ Rectangle {
         anchors.fill: parent
         spacing: 0
 
-        // ---- header (62px, click target — CcToggle proportions) ----
+        // ---- header (62px, click target — Toggle proportions) ----
         Item {
             Layout.fillWidth: true
             Layout.preferredHeight: 62

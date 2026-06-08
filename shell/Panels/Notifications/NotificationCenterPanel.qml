@@ -132,7 +132,7 @@ PanelWindow {
                 antialiasing: true
 
                 // hover wash — a fillStrong highlight fades in on hover, the same
-                // brightening the CcToggle buttons use in the Control Center
+                // brightening the Toggle tiles use in the Control Center
                 Rectangle {
                     anchors.fill: parent
                     radius: parent.radius
