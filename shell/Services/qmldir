@@ -1,0 +1,5 @@
+singleton NotificationService 1.0 NotificationService.qml
+singleton NetworkService 1.0 NetworkService.qml
+singleton BluetoothService 1.0 BluetoothService.qml
+singleton PowerProfileService 1.0 PowerProfileService.qml
+singleton GameModeService 1.0 GameModeService.qml

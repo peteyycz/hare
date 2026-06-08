@@ -1,0 +1,6 @@
+Icon 1.0 Icon.qml
+Separator 1.0 Separator.qml
+Slider 1.0 Slider.qml
+SliderRow 1.0 SliderRow.qml
+MediaButton 1.0 MediaButton.qml
+Toggle 1.0 Toggle.qml

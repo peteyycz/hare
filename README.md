@@ -85,7 +85,8 @@ exact colours for other surfaces (rofi, lock screen, polkit, …).
 nix develop          # quickshell + tools
 quickshell --path ./shell    # run the shell against the working tree (needs a Wayland session)
 nix run .            # run the built package
-./shell  # config layout: shell.qml + Theme.qml singleton + per-widget .qml files
+./shell  # config layout: shell.qml entry + per-feature folders
+         # (Theme/, Common/, Services/, Bar/, Panels/<feature>/)
 ```
 
 Runtime config is read from `$XDG_CONFIG_HOME/hare/config.json` (written by the home-manager

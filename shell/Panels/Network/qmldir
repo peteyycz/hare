@@ -1,0 +1,6 @@
+NetworkButton 1.0 NetworkButton.qml
+NetworkPanel 1.0 NetworkPanel.qml
+WifiItem 1.0 WifiItem.qml
+EthernetItem 1.0 EthernetItem.qml
+VpnSection 1.0 VpnSection.qml
+VpnItem 1.0 VpnItem.qml

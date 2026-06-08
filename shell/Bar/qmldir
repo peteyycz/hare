@@ -1,0 +1,9 @@
+Bar 1.0 Bar.qml
+BarButton 1.0 BarButton.qml
+BarCorner 1.0 BarCorner.qml
+Workspaces 1.0 Workspaces.qml
+ActiveWindow 1.0 ActiveWindow.qml
+Clock 1.0 Clock.qml
+MediaWidget 1.0 MediaWidget.qml
+SystemTray 1.0 SystemTray.qml
+MicrophoneButton 1.0 MicrophoneButton.qml

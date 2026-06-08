@@ -1,15 +1,19 @@
 import QtQuick
 import Quickshell
+import "Services"
+import "Bar"
+import "Panels/Notifications"
+import "Panels/Volume"
 
 ShellRoot {
     // Realize a couple of singletons eagerly so their startup work happens
     // before the user can interact with them: the notification server has to
     // register on the bus (not lazily on first panel open), and PowerProfiles
     // needs its `command -v powerprofilesctl` probe to finish before the
-    // Battery button can decide whether to open its popup.
+    // BatteryButton can decide whether to open its popup.
     Component.onCompleted: {
-        Notifs.list;
-        PowerProfilesCtl.available;
+        NotificationService.list;
+        PowerProfileService.available;
     }
 
     Variants {
@@ -19,7 +23,7 @@ ShellRoot {
     }
 
     // Transient toasts live on the primary screen only.
-    NotifToasts {
+    NotificationToasts {
         screen: Quickshell.screens[0] ?? null
     }
 
