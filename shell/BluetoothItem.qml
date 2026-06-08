@@ -104,7 +104,7 @@ Rectangle {
                     implicitWidth: 36
                     implicitHeight: 36
                     radius: 18
-                    color: item.dev?.connected ? Theme.rgba("ffffff", Theme.activeTone === "light" ? 0.4 : 0.22) : Theme.fillStrong
+                    color: item.dev?.connected ? Theme.rgba("ffffff", 0.22) : Theme.fillStrong
 
                     Icon {
                         anchors.centerIn: parent

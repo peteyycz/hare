@@ -54,46 +54,6 @@ PanelWindow {
         border.color: Theme.border
         clip: true
 
-        // soft top specular glow (the liquid-glass sheen). Like the design's
-        // `--glass-hi`, the sheen is restrained — only shown in the light theme;
-        // in dark it would read as a bright band, so it's dropped.
-        Rectangle {
-            visible: Theme.activeTone === "light"
-            anchors {
-                top: parent.top
-                left: parent.left
-                right: parent.right
-            }
-            height: parent.height * 0.6
-            gradient: Gradient {
-                GradientStop {
-                    position: 0.0
-                    color: Qt.rgba(1, 1, 1, 0.12)
-                }
-                GradientStop {
-                    position: 1.0
-                    color: "transparent"
-                }
-            }
-        }
-
-        // bright 1px top edge highlight — light theme only, like the sheen
-        // above; in dark it reads as a hairline on the screen edge.
-        Rectangle {
-            visible: Theme.activeTone === "light"
-            anchors {
-                top: parent.top
-                left: parent.left
-                right: parent.right
-            }
-            anchors.topMargin: 1
-            anchors.leftMargin: glass.radius
-            anchors.rightMargin: glass.radius
-            height: 1
-            color: Theme.hi
-            opacity: 0.5
-        }
-
         // ---- left segment ----
         // right edge stops before the centered clock so a very long window
         // title can't slide behind it; the title inside ActiveWindow elides

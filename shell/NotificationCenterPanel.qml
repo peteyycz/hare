@@ -100,44 +100,6 @@ PanelWindow {
                 // borderless glass, like the bar
                 antialiasing: true
 
-                // top specular sheen — a full-size overlay sharing the pill's
-                // radius, so it follows the rounded corners without a clip; the
-                // gradient fades out by the middle (light theme only)
-                Rectangle {
-                    visible: Theme.activeTone === "light"
-                    anchors.fill: parent
-                    radius: parent.radius
-                    gradient: Gradient {
-                        GradientStop {
-                            position: 0.0
-                            color: Qt.rgba(1, 1, 1, 0.10)
-                        }
-                        GradientStop {
-                            position: 0.5
-                            color: "transparent"
-                        }
-                        GradientStop {
-                            position: 1.0
-                            color: "transparent"
-                        }
-                    }
-                }
-                // 1px top edge highlight — light theme only
-                Rectangle {
-                    visible: Theme.activeTone === "light"
-                    anchors {
-                        top: parent.top
-                        left: parent.left
-                        right: parent.right
-                    }
-                    anchors.topMargin: 1
-                    anchors.leftMargin: parent.height / 2
-                    anchors.rightMargin: parent.height / 2
-                    height: 1
-                    color: Theme.hi
-                    opacity: 0.5
-                }
-
                 Text {
                     id: titleText
                     anchors.centerIn: parent
@@ -178,44 +140,6 @@ PanelWindow {
                             duration: 140
                         }
                     }
-                }
-
-                // top specular sheen — a full-size overlay sharing the pill's
-                // radius, so it follows the rounded corners without a clip; the
-                // gradient fades out by the middle (light theme only)
-                Rectangle {
-                    visible: Theme.activeTone === "light"
-                    anchors.fill: parent
-                    radius: parent.radius
-                    gradient: Gradient {
-                        GradientStop {
-                            position: 0.0
-                            color: Qt.rgba(1, 1, 1, 0.10)
-                        }
-                        GradientStop {
-                            position: 0.5
-                            color: "transparent"
-                        }
-                        GradientStop {
-                            position: 1.0
-                            color: "transparent"
-                        }
-                    }
-                }
-                // 1px top edge highlight — light theme only
-                Rectangle {
-                    visible: Theme.activeTone === "light"
-                    anchors {
-                        top: parent.top
-                        left: parent.left
-                        right: parent.right
-                    }
-                    anchors.topMargin: 1
-                    anchors.leftMargin: parent.height / 2
-                    anchors.rightMargin: parent.height / 2
-                    height: 1
-                    color: Theme.hi
-                    opacity: 0.5
                 }
 
                 Text {

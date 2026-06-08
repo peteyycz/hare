@@ -1,13 +1,12 @@
 # hare
 
 A neutral **liquid-glass** desktop shell built on [Quickshell](https://quickshell.org).
-Translucent grayscale panels with compositor blur that read neutrally over any wallpaper —
-and an **adaptive tone** that flips between dark and light glass.
+Translucent grayscale panels with compositor blur that read neutrally over any wallpaper.
 
 ![hare bar + control center](docs/screenshot.png)
 
 The control-center button opens a **Control Center** popup (its own blurred layer surface):
-six quick toggles, brightness + volume sliders, and an MPRIS now-playing card.
+quick toggles, brightness + volume sliders, and an MPRIS now-playing card.
 
 The volume slider is wired to PipeWire, brightness to `brightnessctl`. Toggles whose tool is
 missing degrade to a no-op rather than erroring. Optional runtime tools: `networkmanager`,
@@ -41,7 +40,6 @@ hare runs a freedesktop **notification server**.
 
   programs.hare = {
     enable = true;
-    wallpaper = "${config.home.homeDirectory}/.local/share/backgrounds/default.jpg";
     theme.fonts = {
       sans = "Inter";
       mono = "JetBrainsMono Nerd Font";
@@ -51,7 +49,7 @@ hare runs a freedesktop **notification server**.
 ```
 
 `hare` runs as a `graphical-session` systemd user service. It does **not** set your wallpaper,
-manage idle/lock, or bind keys — it only renders the bar and samples the wallpaper for tone.
+manage idle/lock, or bind keys — it only renders the bar.
 
 ### Compositor setup (Hyprland)
 
@@ -73,15 +71,13 @@ the keyboard layout.
 | `enable` | `false` | Enable the shell. |
 | `package` | this flake's package | The hare package. |
 | `systemd.enable` | `true` | Run as a graphical-session user service. |
-| `wallpaper` | `null` | Image sampled for adaptive tone (not set by hare). |
-| `theme.mode` | `"adaptive"` | `adaptive` \| `dark` \| `light`. |
-| `theme.palette.{dark,light}.*` | glass defaults | Per-colour overrides (`bg`, `fg`, `accent`, …). |
+| `theme.palette.*` | glass defaults | Per-colour overrides (`bg`, `fg`, `accent`, …). |
 | `theme.fonts.{sans,mono}` | system defaults | Font families. |
 | `bar.height` | `36` | Bar height in px. |
-| `bar.style` | `"floating"` | `floating` (inset, rounded) or `full` (edge-to-edge). |
+| `bar.style` | `"notched"` | `floating` (inset, rounded), `full` (edge-to-edge), or `notched` (edge-to-edge with concave bottom corners). |
 
-The default palette is also exported as plain data at `hare.lib.glass = { dark = {…}; light = {…}; }`
-so you can reuse the exact colours for other surfaces (rofi, lock screen, polkit, …).
+The default palette is also exported as plain data at `hare.lib.glass` so you can reuse the
+exact colours for other surfaces (rofi, lock screen, polkit, …).
 
 ## Development
 
@@ -93,7 +89,7 @@ nix run .            # run the built package
 ```
 
 Runtime config is read from `$XDG_CONFIG_HOME/hare/config.json` (written by the home-manager
-module) and the live tone from `$XDG_STATE_HOME/hare/tone` (written by `hare-tone <image>`).
+module).
 
 ## License
 

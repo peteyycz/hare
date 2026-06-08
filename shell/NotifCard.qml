@@ -30,46 +30,6 @@ Rectangle {
     antialiasing: true
     clip: true
 
-    // top specular sheen + 1px edge highlight (matches the bar / control
-    // center) — light theme only, kept restrained in dark like the design
-    Rectangle {
-        visible: Theme.activeTone === "light"
-        anchors {
-            top: parent.top
-            left: parent.left
-            right: parent.right
-        }
-        height: parent.height * 0.5
-        // round the top corners to the card so the sheen doesn't paint into the
-        // rounded-off corners (clip is rectangular, not rounded)
-        topLeftRadius: root.radius
-        topRightRadius: root.radius
-        gradient: Gradient {
-            GradientStop {
-                position: 0.0
-                color: Qt.rgba(1, 1, 1, 0.10)
-            }
-            GradientStop {
-                position: 1.0
-                color: "transparent"
-            }
-        }
-    }
-    Rectangle {
-        visible: Theme.activeTone === "light"
-        anchors {
-            top: parent.top
-            left: parent.left
-            right: parent.right
-        }
-        anchors.topMargin: 1
-        anchors.leftMargin: root.radius
-        anchors.rightMargin: root.radius
-        height: 1
-        color: Theme.hi
-        opacity: 0.5
-    }
-
     // Body click → perform the default action (if any) but DON'T dismiss; only
     // the × closes a card. Toasts still auto-dismiss on their own timer.
     MouseArea {

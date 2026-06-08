@@ -165,42 +165,6 @@ PanelWindow {
             }
         }
 
-        // top specular sheen — light theme only (restrained in dark)
-        Rectangle {
-            visible: Theme.activeTone === "light"
-            anchors {
-                top: parent.top
-                left: parent.left
-                right: parent.right
-            }
-            height: parent.height * 0.4
-            gradient: Gradient {
-                GradientStop {
-                    position: 0.0
-                    color: Qt.rgba(1, 1, 1, 0.10)
-                }
-                GradientStop {
-                    position: 1.0
-                    color: "transparent"
-                }
-            }
-        }
-        // bright 1px top edge — light theme only
-        Rectangle {
-            visible: Theme.activeTone === "light"
-            anchors {
-                top: parent.top
-                left: parent.left
-                right: parent.right
-            }
-            anchors.topMargin: 1
-            anchors.leftMargin: glass.radius
-            anchors.rightMargin: glass.radius
-            height: 1
-            color: Theme.hi
-            opacity: 0.5
-        }
-
         ColumnLayout {
             id: col
             anchors.fill: parent
@@ -214,14 +178,6 @@ PanelWindow {
                 rowSpacing: Theme.gap
                 columnSpacing: Theme.gap
 
-                CcToggle {
-                    // moon when dark, sun when light
-                    icon: Theme.activeTone === "dark" ? 0xf186 : 0xf185
-                    name: "Dark Mode"
-                    on: Theme.activeTone === "dark"
-                    status: Theme.activeTone === "dark" ? "On" : "Off"
-                    onToggled: Theme.toggleTone()
-                }
                 CcToggle {
                     icon: 0xf05b // crosshairs
                     name: "Game Mode"

@@ -33,7 +33,7 @@ Rectangle {
             implicitWidth: 36
             implicitHeight: 36
             radius: 18
-            color: item.vpn.active ? Theme.rgba("ffffff", Theme.activeTone === "light" ? 0.4 : 0.22) : Theme.fillStrong
+            color: item.vpn.active ? Theme.rgba("ffffff", 0.22) : Theme.fillStrong
 
             Icon {
                 anchors.centerIn: parent

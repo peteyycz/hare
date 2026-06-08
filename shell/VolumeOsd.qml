@@ -107,42 +107,6 @@ PanelWindow {
             }
         }
 
-        // top specular sheen (`.glass::after` inner glow) — light theme only
-        Rectangle {
-            visible: Theme.activeTone === "light"
-            anchors.fill: parent
-            radius: parent.radius
-            gradient: Gradient {
-                GradientStop {
-                    position: 0.0
-                    color: Qt.rgba(1, 1, 1, 0.10)
-                }
-                GradientStop {
-                    position: 0.5
-                    color: "transparent"
-                }
-                GradientStop {
-                    position: 1.0
-                    color: "transparent"
-                }
-            }
-        }
-        // 1px top edge highlight (`.glass::before` specular rim) — light only
-        Rectangle {
-            visible: Theme.activeTone === "light"
-            anchors {
-                top: parent.top
-                left: parent.left
-                right: parent.right
-            }
-            anchors.topMargin: 1
-            anchors.leftMargin: parent.radius
-            anchors.rightMargin: parent.radius
-            height: 1
-            color: Theme.hi
-            opacity: 0.5
-        }
-
         RowLayout {
             id: row
             anchors.fill: parent

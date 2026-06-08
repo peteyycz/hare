@@ -83,41 +83,6 @@ PanelWindow {
             }
         }
 
-        // top specular sheen — light theme only
-        Rectangle {
-            visible: Theme.activeTone === "light"
-            anchors {
-                top: parent.top
-                left: parent.left
-                right: parent.right
-            }
-            height: parent.height * 0.4
-            gradient: Gradient {
-                GradientStop {
-                    position: 0.0
-                    color: Qt.rgba(1, 1, 1, 0.10)
-                }
-                GradientStop {
-                    position: 1.0
-                    color: "transparent"
-                }
-            }
-        }
-        Rectangle {
-            visible: Theme.activeTone === "light"
-            anchors {
-                top: parent.top
-                left: parent.left
-                right: parent.right
-            }
-            anchors.topMargin: 1
-            anchors.leftMargin: glass.radius
-            anchors.rightMargin: glass.radius
-            height: 1
-            color: Theme.hi
-            opacity: 0.5
-        }
-
         ColumnLayout {
             id: col
             anchors.fill: parent

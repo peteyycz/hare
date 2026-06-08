@@ -13,8 +13,8 @@
       flake-utils,
     }:
     {
-      # The default glass palette (dark + light). Plain data so consumers can
-      # reuse the exact colours for other surfaces (rofi, lock screens, etc.).
+      # The default glass palette (dark). Plain data so consumers can reuse
+      # the exact colours for other surfaces (rofi, lock screens, etc.).
       lib.glass = import ./nix/palette.nix;
 
       homeManagerModules.default = import ./nix/hm-module.nix self;
@@ -32,7 +32,6 @@
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
             quickshell
-            imagemagick
             qt6.qtdeclarative
           ];
 
