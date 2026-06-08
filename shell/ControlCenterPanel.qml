@@ -4,7 +4,6 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Widgets
-import Quickshell.Bluetooth
 import Quickshell.Services.Pipewire
 import Quickshell.Services.Mpris
 
@@ -92,16 +91,6 @@ PanelWindow {
     // ============================================================
     //  Toggle backends
     // ============================================================
-
-    // ---- Bluetooth (native Quickshell.Bluetooth) ----
-    readonly property BluetoothAdapter btAdapter: Bluetooth.defaultAdapter
-
-    function btStatus() {
-        if (!(btAdapter?.enabled ?? false))
-            return "Off";
-        const connected = (Bluetooth.devices?.values ?? []).filter(d => d.connected);
-        return connected.length ? (connected[0].name || "Connected") : "On";
-    }
 
     // ---- Focus / Do-Not-Disturb (drives the notification server's `dnd`) ----
     // State lives in the Notifs singleton so it's shared across screens and the
@@ -239,14 +228,6 @@ PanelWindow {
                     on: GameMode.enabled
                     status: GameMode.enabled ? "On" : "Off"
                     onToggled: GameMode.enabled = !GameMode.enabled
-                }
-                CcToggle {
-                    icon: 0xf293 // bluetooth
-                    name: "Bluetooth"
-                    on: panel.btAdapter?.enabled ?? false
-                    status: panel.btStatus()
-                    onToggled: if (panel.btAdapter)
-                        panel.btAdapter.enabled = !panel.btAdapter.enabled
                 }
                 CcToggle {
                     icon: 0xf186 // moon (do-not-disturb)

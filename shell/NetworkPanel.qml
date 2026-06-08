@@ -4,10 +4,13 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Widgets
 
-// Wi-Fi Network panel — a layer-shell popup mirroring ControlCenterPanel.
-// Lists the visible networks (Networks singleton drives the data), a refresh
-// button that triggers a `nmcli device wifi rescan`, and an inline password
-// input on the selected row. Active network is highlighted.
+// Network panel — a layer-shell popup mirroring ControlCenterPanel. Three
+// stacked blocks, all driven by the Networks singleton:
+//   1. Ethernet — only visible when a managed wired link exists.
+//   2. Wi-Fi    — visible networks, radio toggle, rescan, inline password.
+//   3. VPN      — saved VPN/WireGuard profiles; hidden when none configured.
+// Thin hairline dividers separate adjacent blocks so they read as discrete
+// sections without each needing its own background card.
 //
 // `keyboardFocus: OnDemand` is required so the password TextInput can take
 // focus — without it the layer surface gets no keyboard at all and typing
@@ -127,163 +130,199 @@ PanelWindow {
             anchors.margins: Theme.pad
             spacing: Theme.gap
 
-            // ---- header ----
-            RowLayout {
+            // ---- block 1: ethernet ----
+            EthernetSection {
                 Layout.fillWidth: true
-                spacing: 8
+            }
 
-                Text {
-                    text: "Wi-Fi"
-                    font.family: Theme.fonts.sans
-                    font.pixelSize: 15
-                    font.weight: Font.DemiBold
-                    color: Theme.text
-                }
+            // Hairline divider above wifi only when ethernet is present.
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 1
+                Layout.topMargin: 4
+                Layout.bottomMargin: 4
+                visible: Networks.ethernetDevice.length > 0
+                color: Theme.hairline
+            }
 
-                Item {
+            // ---- block 2: wi-fi ----
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: Theme.gap
+
+                RowLayout {
                     Layout.fillWidth: true
-                }
-
-                // Wi-Fi radio toggle pill
-                Rectangle {
-                    implicitWidth: radioText.implicitWidth + 22
-                    implicitHeight: 28
-                    radius: Theme.rPill
-                    color: Networks.wifiEnabled ? Theme.fillStrong : Theme.fill
-                    border.width: 1
-                    border.color: Theme.hairline
+                    spacing: 8
 
                     Text {
-                        id: radioText
-                        anchors.centerIn: parent
-                        text: Networks.wifiEnabled ? "On" : "Off"
+                        text: "Wi-Fi"
                         font.family: Theme.fonts.sans
-                        font.pixelSize: 11
+                        font.pixelSize: 15
+                        font.weight: Font.DemiBold
                         color: Theme.text
                     }
 
-                    MouseArea {
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: Networks.toggleWifi()
+                    Item {
+                        Layout.fillWidth: true
                     }
-                }
 
-                // Refresh button — fires a full nmcli rescan + relist. While a
-                // scan is in flight the chip stays in its hover-highlighted
-                // colour and the glyph spins so the state is obvious without
-                // needing a "scanning…" label next to the header.
-                Rectangle {
-                    implicitWidth: 28
-                    implicitHeight: 28
-                    radius: 14
-                    color: (refreshMouse.containsMouse || Networks.scanning) ? Theme.fillStrong : Theme.fill
-                    border.width: 1
-                    border.color: Theme.hairline
+                    // Wi-Fi radio toggle pill
+                    Rectangle {
+                        implicitWidth: radioText.implicitWidth + 22
+                        implicitHeight: 28
+                        radius: Theme.rPill
+                        color: Networks.wifiEnabled ? Theme.fillStrong : Theme.fill
+                        border.width: 1
+                        border.color: Theme.hairline
 
-                    Behavior on color {
-                        ColorAnimation {
-                            duration: 140
+                        Text {
+                            id: radioText
+                            anchors.centerIn: parent
+                            text: Networks.wifiEnabled ? "On" : "Off"
+                            font.family: Theme.fonts.sans
+                            font.pixelSize: 11
+                            color: Theme.text
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: Networks.toggleWifi()
                         }
                     }
 
-                    Icon {
-                        id: refreshIcon
-                        anchors.centerIn: parent
-                        code: 0xf021 // nf-fa-refresh
-                        size: 12
-                        color: Theme.text
+                    // Refresh button — fires a full nmcli rescan + relist.
+                    // While a scan is in flight the chip stays in its
+                    // hover-highlighted colour and the glyph spins so the
+                    // state is obvious without needing a "scanning…" label
+                    // next to the header.
+                    Rectangle {
+                        implicitWidth: 28
+                        implicitHeight: 28
+                        radius: 14
+                        color: (refreshMouse.containsMouse || Networks.scanning) ? Theme.fillStrong : Theme.fill
+                        border.width: 1
+                        border.color: Theme.hairline
 
-                        RotationAnimation on rotation {
-                            from: 0
-                            to: 360
-                            duration: 900
-                            loops: Animation.Infinite
-                            running: Networks.scanning
-                            onRunningChanged: if (!running)
-                                refreshIcon.rotation = 0
+                        Behavior on color {
+                            ColorAnimation {
+                                duration: 140
+                            }
                         }
-                    }
 
-                    MouseArea {
-                        id: refreshMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        enabled: Networks.wifiEnabled
-                        onClicked: Networks.refresh()
-                    }
-                }
-            }
+                        Icon {
+                            id: refreshIcon
+                            anchors.centerIn: parent
+                            code: 0xf021 // nf-fa-refresh
+                            size: 12
+                            color: Theme.text
 
-            // ---- wifi-disabled state ----
-            Text {
-                Layout.fillWidth: true
-                Layout.topMargin: 8
-                Layout.bottomMargin: 8
-                visible: !Networks.wifiEnabled
-                horizontalAlignment: Text.AlignHCenter
-                text: "Wi-Fi is off"
-                font.family: Theme.fonts.sans
-                font.pixelSize: 13
-                color: Theme.textDim
-            }
+                            RotationAnimation on rotation {
+                                from: 0
+                                to: 360
+                                duration: 900
+                                loops: Animation.Infinite
+                                running: Networks.scanning
+                                onRunningChanged: if (!running)
+                                    refreshIcon.rotation = 0
+                            }
+                        }
 
-            // ---- empty state ----
-            Text {
-                Layout.fillWidth: true
-                Layout.topMargin: 8
-                Layout.bottomMargin: 8
-                visible: Networks.wifiEnabled && Networks.networks.length === 0
-                horizontalAlignment: Text.AlignHCenter
-                text: Networks.scanning ? "Scanning…" : "No networks found"
-                font.family: Theme.fonts.sans
-                font.pixelSize: 13
-                color: Theme.textDim
-            }
-
-            // ---- list ----
-            // Cap the viewport so the panel stays on-screen if a lot of APs
-            // are visible; the list scrolls past the cap.
-            Flickable {
-                Layout.fillWidth: true
-                Layout.preferredHeight: Math.min(listCol.implicitHeight, 420)
-                visible: Networks.wifiEnabled && Networks.networks.length > 0
-                contentWidth: width
-                contentHeight: listCol.implicitHeight
-                clip: true
-                boundsBehavior: Flickable.StopAtBounds
-                interactive: contentHeight > height
-
-                ColumnLayout {
-                    id: listCol
-                    width: parent.width
-                    spacing: Theme.gap
-
-                    Repeater {
-                        model: Networks.networks
-
-                        delegate: NetworkItem {
-                            required property var modelData
-                            net: modelData
-                            expanded: panel.expandedSsid === modelData.ssid
-                            onToggle: panel.expandedSsid = (panel.expandedSsid === modelData.ssid) ? "" : modelData.ssid
+                        MouseArea {
+                            id: refreshMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            enabled: Networks.wifiEnabled
+                            onClicked: Networks.refresh()
                         }
                     }
                 }
+
+                // ---- wifi-disabled state ----
+                Text {
+                    Layout.fillWidth: true
+                    Layout.topMargin: 8
+                    Layout.bottomMargin: 8
+                    visible: !Networks.wifiEnabled
+                    horizontalAlignment: Text.AlignHCenter
+                    text: "Wi-Fi is off"
+                    font.family: Theme.fonts.sans
+                    font.pixelSize: 13
+                    color: Theme.textDim
+                }
+
+                // ---- empty state ----
+                Text {
+                    Layout.fillWidth: true
+                    Layout.topMargin: 8
+                    Layout.bottomMargin: 8
+                    visible: Networks.wifiEnabled && Networks.networks.length === 0
+                    horizontalAlignment: Text.AlignHCenter
+                    text: Networks.scanning ? "Scanning…" : "No networks found"
+                    font.family: Theme.fonts.sans
+                    font.pixelSize: 13
+                    color: Theme.textDim
+                }
+
+                // ---- list ----
+                // Cap the viewport so the panel stays on-screen if a lot of
+                // APs are visible; the list scrolls past the cap.
+                Flickable {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: Math.min(listCol.implicitHeight, 320)
+                    visible: Networks.wifiEnabled && Networks.networks.length > 0
+                    contentWidth: width
+                    contentHeight: listCol.implicitHeight
+                    clip: true
+                    boundsBehavior: Flickable.StopAtBounds
+                    interactive: contentHeight > height
+
+                    ColumnLayout {
+                        id: listCol
+                        width: parent.width
+                        spacing: Theme.gap
+
+                        Repeater {
+                            model: Networks.networks
+
+                            delegate: NetworkItem {
+                                required property var modelData
+                                net: modelData
+                                expanded: panel.expandedSsid === modelData.ssid
+                                onToggle: panel.expandedSsid = (panel.expandedSsid === modelData.ssid) ? "" : modelData.ssid
+                            }
+                        }
+                    }
+                }
+
+                // ---- error banner ----
+                Text {
+                    Layout.fillWidth: true
+                    Layout.topMargin: 4
+                    visible: Networks.lastError.length > 0
+                    wrapMode: Text.WordWrap
+                    text: Networks.lastError
+                    color: Theme.error
+                    font.family: Theme.fonts.sans
+                    font.pixelSize: 11
+                }
             }
 
-            // ---- error banner ----
-            Text {
+            // Hairline divider above VPN only when at least one profile exists.
+            Rectangle {
                 Layout.fillWidth: true
+                Layout.preferredHeight: 1
                 Layout.topMargin: 4
-                visible: Networks.lastError.length > 0
-                wrapMode: Text.WordWrap
-                text: Networks.lastError
-                color: Theme.error
-                font.family: Theme.fonts.sans
-                font.pixelSize: 11
+                Layout.bottomMargin: 4
+                visible: Networks.vpns.length > 0
+                color: Theme.hairline
+            }
+
+            // ---- block 3: VPN ----
+            VpnSection {
+                Layout.fillWidth: true
             }
         }
     }

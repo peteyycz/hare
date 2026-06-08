@@ -24,6 +24,9 @@ NotificationCenterPanel 1.0 NotificationCenterPanel.qml
 Network 1.0 Network.qml
 NetworkPanel 1.0 NetworkPanel.qml
 NetworkItem 1.0 NetworkItem.qml
+EthernetSection 1.0 EthernetSection.qml
+VpnSection 1.0 VpnSection.qml
+VpnItem 1.0 VpnItem.qml
 BluetoothButton 1.0 BluetoothButton.qml
 BluetoothPanel 1.0 BluetoothPanel.qml
 BluetoothItem 1.0 BluetoothItem.qml
