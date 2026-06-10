@@ -116,6 +116,7 @@ PanelWindow {
                     bluetoothButton.open = false;
                     notificationButton.open = false;
                     controlCenterButton.open = false;
+                    powerButton.open = false;
                 }
             }
             NetworkButton {
@@ -127,6 +128,7 @@ PanelWindow {
                     bluetoothButton.open = false;
                     notificationButton.open = false;
                     controlCenterButton.open = false;
+                    powerButton.open = false;
                 }
             }
             BluetoothButton {
@@ -137,6 +139,7 @@ PanelWindow {
                     networkButton.open = false;
                     notificationButton.open = false;
                     controlCenterButton.open = false;
+                    powerButton.open = false;
                 }
             }
             NotificationButton {
@@ -147,6 +150,7 @@ PanelWindow {
                     networkButton.open = false;
                     bluetoothButton.open = false;
                     controlCenterButton.open = false;
+                    powerButton.open = false;
                 }
             }
             ControlCenterButton {
@@ -157,10 +161,19 @@ PanelWindow {
                     networkButton.open = false;
                     bluetoothButton.open = false;
                     notificationButton.open = false;
+                    powerButton.open = false;
                 }
             }
             PowerButton {
+                id: powerButton
                 Layout.alignment: Qt.AlignVCenter
+                onOpenChanged: if (open) {
+                    batteryButton.open = false;
+                    networkButton.open = false;
+                    bluetoothButton.open = false;
+                    notificationButton.open = false;
+                    controlCenterButton.open = false;
+                }
             }
         }
     }
@@ -210,19 +223,26 @@ PanelWindow {
         open: batteryButton.open
         onClose: batteryButton.open = false
     }
+    PowerPanel {
+        id: powerPanel
+        screen: bar.screen
+        open: powerButton.open
+        onClose: powerButton.open = false
+    }
 
     // Click-outside-to-close. While a popup is open, Hyprland grabs input for
     // these surfaces only: clicks inside the panel work normally, and the first
     // click anywhere outside fires `cleared`, which closes the open popup.
     HyprlandFocusGrab {
-        active: controlCenterButton.open || notificationButton.open || networkButton.open || bluetoothButton.open || batteryButton.open
-        windows: [ccPanel, notifPanel, networkPanel, btPanel, battPanel]
+        active: controlCenterButton.open || notificationButton.open || networkButton.open || bluetoothButton.open || batteryButton.open || powerButton.open
+        windows: [ccPanel, notifPanel, networkPanel, btPanel, battPanel, powerPanel]
         onCleared: {
             controlCenterButton.open = false;
             notificationButton.open = false;
             networkButton.open = false;
             bluetoothButton.open = false;
             batteryButton.open = false;
+            powerButton.open = false;
         }
     }
 }

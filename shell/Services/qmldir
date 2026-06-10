@@ -7,3 +7,4 @@ singleton BrightnessService 1.0 BrightnessService.qml
 singleton NightLightService 1.0 NightLightService.qml
 singleton CaffeineService 1.0 CaffeineService.qml
 singleton ScreenRecorderService 1.0 ScreenRecorderService.qml
+singleton PowerService 1.0 PowerService.qml
